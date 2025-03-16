@@ -16,12 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from bmstu_lab import views
-
+from bmstu_lab.views import coffee_list, coffee_detail, basket_detail, add_to_basket
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('hello/', views.hello),
-    path('admin/',),
-    path('',),
+    path("", coffee_list, name="product_list"),  # <-- Здесь добавляем name="product_list"
+    path("coffee/<int:coffee_id>/", coffee_detail, name="clothes_detail"),
+    path("basket/", basket_detail, name="basket_detail"),
+    path("basket/add/<int:product_id>/", add_to_basket, name="add_to_basket"),
 ]
+

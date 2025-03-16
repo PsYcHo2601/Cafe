@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+{% load static%}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Vlado`s Coffee{% endblock %}</title>
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Aboreto&display=swap" rel="stylesheet">    
+    </head>
+    <body>
+        <div class="home">
+            <div class="header">
+                <div class="logo_group">
+                    <a href="/"><img class="logo" src="./main_image.png" alt="Vlados-coffee-image"></a>
+                    <p class="name">Vlado`s coffee</p>
+                </div>
+                <div class="search_group">
+                    <img src="./search_icon.png" alt="search_icon">
+                    <input class="search" id="mySearch" name="q" placeholder="Search…" required />
+                    <search></search>
+                </div>
+                <div class="links_group">
+                    <a href="#" class="main_links">Order</a>
+                    <ul>
+                        <li class="root">
+                            Contacts
+                            <ul class="dropdown">
+                                <li><a href="https://web.telegram.org/a/"><img src="./tg.png" alt="telegram"></a></li>
+                                <li><a href="https://vk.com/vladospapiross"><img src="./vk.png" alt="vk"></a></li>
+                                <li><a href="tel: +79296049780"><img src="./whatsapp.png" alt="whatsapp"></a></li>
+                                <li><a href="mailto:sedvlad2015@yandex.ru"><img src="./email.png" alt="mail" style="width: 40px;"></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="content">
+                <div class="card">
+                    <img src="americano.png" alt="americano">
+                    <a href="#"><img class="info" src="./info.png" alt="info"></a>
+                    <h1>Americano</h1>
+                    <button class="buy_button">Buy for 229rub</button>
+                </div>
+                <div class="card">
+                    <img src="./latte.png" alt="americano">
+                    <a href="#"><img src="./info.png" alt="info"></a>
+                    <h1>Latte</h1>
+                    <button class="buy_button">Buy for 299rub</button>
+                </div>
+                <div class="card">
+                    <img src="./flatwhite.png" alt="americano">
+                    <a href="#"><img src="./info.png" alt="info"></a>
+                    <h1>Flat White</h1>
+                    <button class="buy_button">Buy for 299rub</button>
+                </div>
+                <div class="card">
+                    <img src="./flatwhite.png" alt="americano">
+                    <a href="#"><img src="./info.png" alt="info"></a>
+                    <h1>Viennese Coffee</h1>
+                    <button class="buy_button">Buy for 349rub</button>
+                </div>
+                <div class="card">
+                    <img src="./hotchokolate.png" alt="americano">
+                    <a href="#"><img src="./info.png" alt="info"></a>
+                    <h1>Hot Chocolate</h1>
+                    <button class="buy_button">Buy for 349rub</button>
+                </div>
+                <div class="card">
+                    <img src="./capuccino.png" alt="americano">
+                    <a href="#"><img src="./info.png" alt="info"></a>
+                    <h1>Capuccino</h1>
+                    <button class="buy_button">Buy for 319rub</button>
+                </div>
+            </div>
+            <div class="foot">
+                <p style="margin: 15px;  font-family: 'Aboreto', 'Times New Roman', Times, serif;">© 2017 - 2025 Vlado`s coffee bar</p>
+            </div> 
+            <div class="basket">
+                <a href="/basket/"><img src="./basket.png" alt="basket" width="70px"></a>
+                <p>{{ basket.total_count }}</p>
+            </div> 
+        </div> 
+    </body>
+</html>
