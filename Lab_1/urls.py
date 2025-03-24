@@ -14,14 +14,23 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path
-from bmstu_lab.views import coffee_list, coffee_detail, basket_detail, add_to_basket
-
+from bmstu_lab.views import coffee_list, coffee_detail, basket_detail, add_to_basket, search_results
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path
+from django.contrib import admin
 urlpatterns = [
-    path("", coffee_list, name="product_list"),  # <-- Здесь добавляем name="product_list"
-    path("coffee/<int:coffee_id>/", coffee_detail, name="clothes_detail"),
-    path("basket/", basket_detail, name="basket_detail"),
-    path("basket/add/<int:product_id>/", add_to_basket, name="add_to_basket"),
+    path('', coffee_list, name='home'),  # ✅ Теперь главная страница доступна
+    path('coffee/', coffee_list, name='coffee_list'),
+    path('coffee/<int:coffee_id>/', coffee_detail, name='coffee_detail'),
+    path('basket/', basket_detail, name='basket_detail'),
+    path('basket/add/<int:product_id>/', add_to_basket, name='add_to_basket'),
+    path('search/', search_results, name='search'),
+    path('admin/', admin.site.urls),
 ]
 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

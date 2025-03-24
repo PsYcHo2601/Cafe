@@ -5,22 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dbb65c11-47b2-48db-a108-028847eda0df" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/bmstu_lab/static/styles.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bmstu_lab/templates/1.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bmstu_lab/templates/2.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bmstu_lab/templates/3.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/nginx/docker-compose.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/nginx/nginx.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lab_1/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lab_1/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lab_1/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lab_1/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/static/styles.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/1.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/2.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/3.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/index.html" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nginx/docker-compose.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nginx/nginx.conf" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -49,6 +56,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
     &quot;git-widget-placeholder&quot;: &quot;Template&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/GITHub/Cafe&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -106,6 +114,15 @@
       <workItem from="1741983717992" duration="121000" />
       <workItem from="1741983853438" duration="111000" />
       <workItem from="1741984682191" duration="13024000" />
+      <workItem from="1742153923831" duration="2342000" />
+      <workItem from="1742221340452" duration="335000" />
+      <workItem from="1742221705114" duration="134000" />
+      <workItem from="1742221873090" duration="123000" />
+      <workItem from="1742222043587" duration="343000" />
+      <workItem from="1742222409376" duration="1558000" />
+      <workItem from="1742224387717" duration="2366000" />
+      <workItem from="1742238365740" duration="7548000" />
+      <workItem from="1742298550442" duration="25206000" />
     </task>
     <servers />
   </component>

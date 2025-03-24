@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Корзина{% endblock %}
+{% block content %}
+    <h1 style="margin: 30px">Basket</h1>
+
+    {% if basket %}
+        <ul>
+            {% for key, item in basket.items %}
+                <li>
+                    <img src="{{ item.image_url }}" alt="{{ item.name }}" width="50">
+                    {{ item.name }} - {{ item.price }} ₽
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Basket empty.</p>
+    {% endif %}
+{% endblock %}

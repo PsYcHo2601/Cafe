@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Vlado`s Coffee{% endblock %}</title>
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Aboreto&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="home">
+            <!-- Хедер -->
+            <div class="header">
+                <div class="logo_group">
+                    <a href="/"><img class="logo" src="http://127.0.0.1:9000/cafe/main_image.png" alt="Vlados-coffee-image"></a>
+                    <p class="name">Vlado`s coffee</p>
+                </div>
+
+                <!-- Форма поиска -->
+                <div class="search_group">
+                    <form method="GET" action="{% url 'search' %}">
+                        <input class="search" id="mySearch" name="q" placeholder="Search…" />
+                        <button type="submit" class="search-button">🔍</button>
+                    </form>
+                </div>
+
+                <!-- Меню навигации -->
+                <div class="links_group">
+                    <a href="#" class="main_links">Order</a>
+                    <ul>
+                        <li class="root">
+                            Contacts
+                            <ul class="dropdown">
+                                <li><a href="https://web.telegram.org/a/"><img src="http://127.0.0.1:9000/cafe/tg.png" alt="telegram"></a></li>
+                                <li><a href="https://vk.com/vladospapiross"><img src="http://127.0.0.1:9000/cafe/vk.png" alt="vk"></a></li>
+                                <li><a href="tel:+79296049780"><img src="http://127.0.0.1:9000/cafe/whatsapp.png" alt="whatsapp"></a></li>
+                                <li><a href="mailto:sedvlad2015@yandex.ru"><img src="http://127.0.0.1:9000/cafe/email.png" alt="mail" style="width: 40px;"></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Контент -->
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+
+            <!-- Корзина -->
+            <div class="basket">
+                <a href="{% url 'basket_detail' %}">
+                    <img src="http://127.0.0.1:9000/cafe/basket.png" alt="basket" width="70px">
+                </a>
+                <p>{{ basket_count }}</p>
+            </div> 
+        </div> 
+    </body>
+</html>

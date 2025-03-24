@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -75,8 +76,12 @@ WSGI_APPLICATION = 'Lab_1.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'cafe'),
+        'USER': os.getenv('POSTGRES_USER', 'minio'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'minio124'),
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
 
@@ -116,8 +121,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
-STATIC_DIRS = [BASE_DIR / 'bmstu_lab/static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'bmstu_lab/static']
 
 
 # Default primary key field type
@@ -132,8 +137,8 @@ INSTALLED_APPS += ['storages']
 
 AWS_ACCESS_KEY_ID = "minio"
 AWS_SECRET_ACCESS_KEY = "minio124"
-AWS_STORAGE_BUCKET_NAME = "shop-images"
-AWS_S3_ENDPOINT_URL = "http://127.0.0.1:3010"
+AWS_STORAGE_BUCKET_NAME = "cafe"
+AWS_S3_ENDPOINT_URL = "127.0.0.1:9001"
 AWS_S3_ADDRESSING_STYLE = "path"
 AWS_S3_CUSTOM_DOMAIN = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}"
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
