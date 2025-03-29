@@ -43,8 +43,8 @@ def coffee_list(request):
 
 
 def coffee_detail(request, coffee_id):
-    coffee = get_object_or_404(Coffee, id=coffee_id)
-    return render(request, "coffee_detail.html", {"coffee": coffee})
+    item = next((c for c in coffee if c["id"] == coffee_id), None)
+    return render(request, "coffee_detail.html", {"clothes": item})
 
 def basket_detail(request):
     #Страница корзины

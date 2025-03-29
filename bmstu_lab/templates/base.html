@@ -18,18 +18,9 @@
                     <a href="/"><img class="logo" src="http://127.0.0.1:9000/cafe/main_image.png" alt="Vlados-coffee-image"></a>
                     <p class="name">Vlado`s coffee</p>
                 </div>
-
-                <!-- Форма поиска -->
-                <div class="search_group">
-                    <form method="GET" action="{% url 'search' %}">
-                        <input class="search" id="mySearch" name="q" placeholder="Search…" />
-                        <button type="submit" class="search-button">🔍</button>
-                    </form>
-                </div>
-
                 <!-- Меню навигации -->
                 <div class="links_group">
-                    <a href="#" class="main_links">Order</a>
+                    <a href="{% url 'basket_detail' %}" class="main_links">Order</a>
                     <ul>
                         <li class="root">
                             Contacts
@@ -43,19 +34,10 @@
                     </ul>
                 </div>
             </div>
-
             <!-- Контент -->
             <div class="content">
                 {% block content %}{% endblock %}
             </div>
-
-            <!-- Корзина -->
-            <div class="basket">
-                <a href="{% url 'basket_detail' %}">
-                    <img src="http://127.0.0.1:9000/cafe/basket.png" alt="basket" width="70px">
-                </a>
-                <p>{{ basket_count }}</p>
-            </div> 
         </div> 
     </body>
 </html>
