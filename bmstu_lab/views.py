@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from bmstu_lab.models import Coffee  # Убедись, что имя модели совпадает!
 from django.shortcuts import render, get_object_or_404
 
@@ -82,4 +81,4 @@ def search_results(request):
             Q(price__icontains=query)  # Поиск по цене
         )
 
-    return render(request, "search_results.html", {"query": query, "results": results})
+    return render(request, "coffee_detail.html", {"query": query, "results": results})

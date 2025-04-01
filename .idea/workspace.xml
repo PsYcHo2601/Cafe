@@ -5,14 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dbb65c11-47b2-48db-a108-028847eda0df" name="Changes" comment="Tamplate 0.3">
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lab_1/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lab_1/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/static/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/static/css/styles.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/staticfiles/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/staticfiles/css/styles.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,20 +31,25 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "PsYcHo2601"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;PsYcHo2601&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/PsYcHo2601/Cafe.git",
-    "accountId": "54b5f9db-0d45-4e5e-b680-52a052c67088"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/PsYcHo2601/Cafe.git&quot;,
+    &quot;accountId&quot;: &quot;54b5f9db-0d45-4e5e-b680-52a052c67088&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
 }</component>
@@ -59,11 +65,12 @@
     "Django Server.Lab_1.executor": "Run",
     "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "database.data.extractors.current.export.id": "SQL Inserts",
     "database.data.extractors.current.id": "SQL Inserts",
     "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
-    "git-widget-placeholder": "Template",
+    "git-widget-placeholder": "BD",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "D:/GITHub/Cafe",
     "node.js.detected.package.eslint": "true",
@@ -136,6 +143,9 @@
       <workItem from="1742224387717" duration="2366000" />
       <workItem from="1742238365740" duration="7548000" />
       <workItem from="1742298550442" duration="38438000" />
+      <workItem from="1743280880583" duration="2909000" />
+      <workItem from="1743357480761" duration="905000" />
+      <workItem from="1743359222514" duration="8560000" />
     </task>
     <task id="LOCAL-00001" summary="Tamplate 0.3">
       <option name="closed" value="true" />

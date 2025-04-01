@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from django.urls import path
 from django.contrib import admin
 urlpatterns = [
-    path('', views.coffee_list, name='home'),  # ✅ Теперь главная страница доступна
+    path('', views.coffee_list, name='home'),
     path('coffee/', views.coffee_list, name='coffee_list'),
     path('coffee/<int:coffee_id>/', views.coffee_detail, name='coffee_detail'),
     path('basket/', views.basket_detail, name='basket_detail'),
@@ -29,7 +29,7 @@ urlpatterns = [
     path('search/', views.search_results, name='search'),
     path('admin/', admin.site.urls),
 ]
-
+# test
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:

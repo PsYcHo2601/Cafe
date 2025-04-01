@@ -7,8 +7,7 @@
 
 /* Общий стиль */
 body {
-    font-family: 'Aboreto', 'Times New Roman', Times, serif;
-    background-color: #f9f9f9;
+    background-color: red;
 }
 
 /* Контейнер главной страницы */
@@ -162,4 +161,19 @@ body {
 .card-link:hover .card {
     transform: scale(1.05);
     transition: 0.3s;
+}
+.root {
+    list-style-type: none;
+    position: relative;
+    display: inline-block;
+}
+.dropdown {
+    display: none;
+    position: absolute;
+}
+.root:hover .dropdown {
+    display: block;
+}
+.basketOptional {
+    text-decoration: none;
 }
