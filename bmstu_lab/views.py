@@ -1,5 +1,8 @@
-from bmstu_lab.models import Coffee  # Убедись, что имя модели совпадает!
+from bmstu_lab.models import Coffee
 from django.shortcuts import render, get_object_or_404
+from django.db.models import Q
+from django.shortcuts import render, get_object_or_404, redirect
+from django.db import connection
 
 MINIO_URL = "http://localhost:9000/cafe"
 
@@ -23,8 +26,10 @@ coffee = [
      "description": "Капучино.",
      "image_url": "http://localhost:9000/cafe/capuccino.png"}
 ]
-# корзина
-basket = {}
+
+basket = {1: {"id": 1, "name": "Americano", "price": 229, "date": "2025-04-10",
+     "description": "Кофе американо.",
+     "image_url": "http://localhost:9000/cafe/americano.png"}}
 
 def coffee_list(request):
     search_query = request.GET.get("search","").strip().lower()
@@ -40,7 +45,6 @@ def coffee_list(request):
         filtered_coffee = sorted(filtered_coffee, key=lambda x: x["date"])
     return render(request, "coffee_list.html", {"coffee": filtered_coffee, "basket_count": len(basket), "search_query": search_query, "filtered_by": filter_by})
 
-
 def coffee_detail(request, coffee_id):
     item = next((c for c in coffee if c["id"] == coffee_id), None)
     return render(request, "coffee_detail.html", {"clothes": item})
@@ -48,7 +52,6 @@ def coffee_detail(request, coffee_id):
 def basket_detail(request):
     #Страница корзины
     return render(request, "basket_detail.html", {"basket": basket})
-
 
 def add_to_basket(request, product_id):
     #Добавление товара в корзину через отдельный URL
@@ -61,15 +64,20 @@ def add_to_basket(request, product_id):
     # Возвращаем пользователя обратно на страницу списка товаров
     return coffee_list(request)
 
-from django.shortcuts import render
-
 def home(request):
     return render(request, "base.html", {"coffee":coffee})  # Отображает base.html
 
-from django.shortcuts import render
-from django.db.models import Q  # Не забудь импортировать Q
-from .models import Coffee  # Убедись, что у тебя есть модель Coffee
+def delete_order(request):
+    if request.method == "POST":
+        # Используем raw SQL для обновления статуса заявки
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "UPDATE orders SET status = %s WHERE creator_id = %s AND status = %s",
 
+            )
+        return redirect('coffee_list')
+
+    return redirect('basket_detail')
 def search_results(request):
     query = request.GET.get("q", "").strip()
     results = Coffee.objects.all()  # По умолчанию все товары
