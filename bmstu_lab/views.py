@@ -4,26 +4,7 @@ from django.shortcuts import render, get_object_or_404
 
 MINIO_URL = "http://localhost:9000/cafe"
 
-coffee = [
-    {"id": 1, "name": "Americano", "price": 229, "date": "2025-04-10",
-     "description": "Кофе американо.",
-     "image_url": "http://localhost:9000/cafe/americano.png"},
-    {"id": 2, "name": "Latte", "price": 299, "date": "2025-04-12",
-     "description": "Кофе латте.",
-     "image_url": "http://localhost:9000/cafe/latte.png"},
-    {"id": 3, "name": "Flat White", "price": 299, "date": "2025-04-15",
-     "description": "Кофе  Флэт-уайт.",
-     "image_url": "http://localhost:9000/cafe/flatwhite.png"},
-    {"id": 4, "name": "Viennese Coffee", "price":349, "date": "2025-04-15",
-     "description": "Венский кофе",
-     "image_url": "http://localhost:9000/cafe/viennesecoffee.png"},
-    {"id": 5, "name": "Hot Chocolate", "price": 349, "date": "2025-04-20",
-     "description": "Горячий шоколад.",
-     "image_url": "http://localhost:9000/cafe/hotchokolate.png"},
-    {"id": 6, "name": "Capuccino", "price": 319, "date": "2025-04-20",
-     "description": "Капучино.",
-     "image_url": "http://localhost:9000/cafe/capuccino.png"}
-]
+coffee = []
 # корзина
 basket = {}
 
