@@ -32,6 +32,9 @@ basket = {1: {"id": 1, "name": "Americano", "price": 229, "date": "2025-04-10",
      "image_url": "http://localhost:9000/cafe/americano.png"}}
 
 def coffee_list(request):
+    """
+    Коммент тест
+    """
     search_query = request.GET.get("search","").strip().lower()
     filter_by = request.GET.get("filter_by","all")
 
