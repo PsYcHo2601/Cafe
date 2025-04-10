@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}{{ clothes.name }}{% endblock %}
+{% block title %}{{ coffee.name }}{% endblock %}
 {% block content %}
     <div class="product-detail">
-        <h1 class="product-title">{{ clothes.name }}</h1>
-        <img src="{{ item.image_url }}" alt="{{ coffee.name }}" class="product-image">
-        <p class="product-price">Цена: {{ clothes.price }} ₽</p>
-        <p class="product-description">{{ clothes.description }}</p>
+        <h1 class="product-title">{{ coffee.name }}</h1>
+        <img src="{{ coffee.image_url }}" alt="{{ coffee.name }}" class="product-image">
+        <p class="product-price">Цена: {{ coffee.price }} ₽</p>
+        <p class="product-description">{{ coffee.description }}</p>
     </div>
 {% endblock %}

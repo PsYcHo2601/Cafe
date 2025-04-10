@@ -1,21 +1,8 @@
+import datetime
 import uuid
 
 from django.contrib.auth.models import AbstractUser, Permission, Group
 from django.db import models
-from django.utils.translation import gettext_lazy as _
-
-
-class Product(models.Model):
-    name = models.CharField(max_length=255, verbose_name="Название товара")
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
-    image = models.ImageField(upload_to='products/', verbose_name="Изображение товара", null=True, blank=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = "Товар"
-        verbose_name_plural = "Товары"
 
 
 class Coffee(models.Model):
@@ -75,7 +62,6 @@ class Orders(models.Model):
     def __str__(self):
         return f"Заявка #{self.id} ({self.get_status_display()})"
 
-
     class Meta:
         verbose_name = "Заявка"
         verbose_name_plural = "Заявки"
@@ -88,17 +74,18 @@ class Orders(models.Model):
             )
         ]
 
+
 class OrderServices(models.Model):
     order = models.ForeignKey(
-            'Orders',
-            on_delete=models.CASCADE,
-            verbose_name="Заявка"
+        'Orders',
+        on_delete=models.CASCADE,
+        verbose_name="Заявка"
     )
     service = models.ForeignKey(
         'Services',
         on_delete=models.PROTECT,
         verbose_name="Услуга"
-        )
+    )
     quantity = models.PositiveIntegerField(default=1, verbose_name="Количество")
     is_main = models.BooleanField(default=False, verbose_name="Основная услуга")
     order_number = models.PositiveIntegerField(verbose_name="Порядковый номер", default=1)
@@ -112,11 +99,14 @@ class OrderServices(models.Model):
         db_table = 'order_services'
         unique_together = [('order', 'service')]
 
+
 class Services(models.Model):
     name = models.CharField(max_length=255, verbose_name="Название услуги")
     description = models.TextField(blank=True, verbose_name="Описание")
     is_active = models.BooleanField(default=True, verbose_name="Активна")
     image_url = models.URLField(max_length=255, blank=True, null=True, verbose_name="URL изображения")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+    date = models.DateField(default=datetime.date.today(), verbose_name='Дата')
 
     def __str__(self):
         return self.name

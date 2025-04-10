@@ -32,10 +32,16 @@
                 </h1>
                 <p class="product-price">Цена: {{ item.price }} ₽</p>
                 <p class="product-date">Дата: {{ item.date }}</p>
-                <form method="POST" action="{% url 'add_to_basket' item.id %}">
-                    {% csrf_token %}
-                    <button type="submit">Добавить в корзину</button>
-                </form>
+                {% if item.added_to_basket %}
+                    <div>
+                        <img src="" alt="">
+                    </div>>
+                {% else %}
+                    <form method="POST" action="{% url 'add_to_basket' item.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Добавить в корзину</button>
+                    </form>
+                {% endif %}
             </div>
         {% endfor %}
     </div>

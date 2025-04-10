@@ -5,12 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dbb65c11-47b2-48db-a108-028847eda0df" name="Changes" comment="Tamplate 0.3">
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bmstu_lab/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Lab_1.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Lab_1.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9bb36a50-3854-40af-9626-1fa6acee71f6.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lab_1/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lab_1/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/views.py" afterDir="false" />
     </list>
@@ -32,18 +36,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "PsYcHo2601"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;PsYcHo2601&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/PsYcHo2601/Cafe.git",
-    "accountId": "54b5f9db-0d45-4e5e-b680-52a052c67088"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/PsYcHo2601/Cafe.git&quot;,
+    &quot;accountId&quot;: &quot;54b5f9db-0d45-4e5e-b680-52a052c67088&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
 }</component>
@@ -59,18 +63,20 @@
     "Django Server.Lab_1.executor": "Run",
     "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "database.data.extractors.current.export.id": "SQL Inserts",
     "database.data.extractors.current.id": "SQL Inserts",
     "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
     "git-widget-placeholder": "Template",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/GITHub/Cafe",
+    "last_opened_file_path": "D:/Projects/Lab_1/.venv",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -79,6 +85,11 @@
     ]
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Projects\Lab_1\bmstu_lab\" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="Lab_1" type="Python.DjangoServer" factoryName="Django server">
       <module name="Lab_1" />
@@ -109,8 +120,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PY-242.23726.102" />
-        <option value="bundled-python-sdk-5e1850174b45-399fe30bd8c1-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.23726.102" />
+        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241" />
+        <option value="bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241" />
       </set>
     </attachedChunks>
   </component>
@@ -136,6 +147,9 @@
       <workItem from="1742224387717" duration="2366000" />
       <workItem from="1742238365740" duration="7548000" />
       <workItem from="1742298550442" duration="38438000" />
+      <workItem from="1744111306961" duration="2977000" />
+      <workItem from="1744114341433" duration="2330000" />
+      <workItem from="1744143626383" duration="7437000" />
     </task>
     <task id="LOCAL-00001" summary="Tamplate 0.3">
       <option name="closed" value="true" />
@@ -151,9 +165,61 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Tamplate v0.1" />
     <MESSAGE value="Tamplate 0.3" />
     <option name="LAST_COMMIT_MESSAGE" value="Tamplate 0.3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>66</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>70</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>97</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>98</line>
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>100</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="django-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html</url>
+          <line>1</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="Python.DjangoServer">
+        <watch expression="Orders.objects.filter(creator_id=user_id, status=Orders.DRAFT).exists()" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

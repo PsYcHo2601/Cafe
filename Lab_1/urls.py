@@ -26,7 +26,7 @@ urlpatterns = [
     path('coffee/<int:coffee_id>/', views.coffee_detail, name='coffee_detail'),
     path('basket/', views.basket_detail, name='basket_detail'),
     path('basket/add/<int:product_id>/', views.add_to_basket, name='add_to_basket'),
-    path('search/', views.search_results, name='search'),
+    path('basket/delete/<int:product_id>/', views.delete_from_backet, name='delete_from_basket'),
     path('admin/', admin.site.urls),
 ]
 

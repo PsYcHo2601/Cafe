@@ -5,11 +5,15 @@
 
     {% if basket %}
         <ul>
-            {% for key, item in basket.items %}
+            {% for item in basket %}
                 <li>
                     <img src="{{ item.image_url }}" alt="{{ item.name }}" width="50">
                     {{ item.name }} - {{ item.price }} ₽
                 </li>
+                <form method="POST" action="{% url 'delete_from_basket' item.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Удалить из корзины</button>
+                </form>
             {% endfor %}
         </ul>
     {% else %}
