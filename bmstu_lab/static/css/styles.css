@@ -4,10 +4,15 @@
     padding: 0;
     box-sizing: border-box;
 }
-
+h1 {
+    font-family: 'Aboreto', Times, serif ;
+    font-size: 28px;
+    font-weight: bold;
+    color: #363751;
+    margin-left: 10px;
+}
 /* Общий стиль */
 body {
-    font-family: 'Aboreto', 'Times New Roman', Times, serif;
     background-color: #f9f9f9;
 }
 
@@ -169,9 +174,27 @@ body {
     display: inline-block;
 }
 .dropdown {
+    background-color: #f3f4f6;
+    list-style-type: none;
     display: none;
     position: absolute;
+    min-width: 100px;
+    text-align: center;
+    border: 1px solid #f3f4f6;
+    border-radius: 15px;
+    padding: 10px;
 }
 .root:hover .dropdown {
     display: block;
+}
+.basketOptional {
+    list-style-type: none;
+}
+.basketPosition {
+    border: 2px solid #f3f4f6;
+    border-radius: 5px;
+    background-color: #f3f4f6;
+    padding: 10px 20px;
+    margin: 15px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
 }

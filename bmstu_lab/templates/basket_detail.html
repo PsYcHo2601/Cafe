@@ -4,9 +4,9 @@
     <h1 style="margin: 30px">Basket</h1>
 
     {% if basket %}
-        <ul>
+        <ul class="basketOptional">
             {% for item in basket %}
-                <li>
+                <li class="basketPosition">
                     <img src="{{ item.image_url }}" alt="{{ item.name }}" width="50">
                     {{ item.name }} - {{ item.price }} ₽
                 </li>

@@ -5,18 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dbb65c11-47b2-48db-a108-028847eda0df" name="Changes" comment="Tamplate 0.3">
-      <change afterPath="$PROJECT_DIR$/bmstu_lab/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Lab_1.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Lab_1.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9bb36a50-3854-40af-9626-1fa6acee71f6.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lab_1/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lab_1/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/static/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/static/css/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/staticfiles/css/styles.css" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +28,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="Template" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -57,34 +56,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Django Server.Lab_1.executor": "Run",
-    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "database.data.extractors.current.export.id": "SQL Inserts",
-    "database.data.extractors.current.id": "SQL Inserts",
-    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
-    "git-widget-placeholder": "Template",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/Projects/Lab_1/.venv",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Django Server.Lab_1.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;database.data.extractors.current.export.id&quot;: &quot;SQL Inserts&quot;,
+    &quot;database.data.extractors.current.id&quot;: &quot;SQL Inserts&quot;,
+    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Template&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Projects/Lab_1/.venv&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Projects\Lab_1\bmstu_lab\" />
