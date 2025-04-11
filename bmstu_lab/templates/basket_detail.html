@@ -1,22 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Корзина{% endblock %}
+{% block title %}Ваш заказ{% endblock %}
 {% block content %}
-    <h1 style="margin: 30px">Basket</h1>
+    <h1>Ваш заказ</h1>
 
     {% if basket %}
         <ul class="basketOptional">
             {% for item in basket %}
                 <li class="basketPosition">
                     <img src="{{ item.image_url }}" alt="{{ item.name }}" width="50">
-                    {{ item.name }} - {{ item.price }} ₽
+                    <p>{{ item.name }} - {{ item.price }} ₽</p>
+                    <form method="POST" action="{% url 'delete_from_basket' item.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="deleteButton">✖</button>
+                    </form>
                 </li>
-                <form method="POST" action="{% url 'delete_from_basket' item.id %}">
-                    {% csrf_token %}
-                    <button type="submit">Удалить из корзины</button>
-                </form>
+
             {% endfor %}
         </ul>
     {% else %}
-        <p>Basket empty.</p>
+        <p class=""> Тут ничего нету :( </p>
     {% endif %}
 {% endblock %}

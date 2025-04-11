@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% block title %}{{ coffee.name }}{% endblock %}
 {% block content %}
-    <div class="product-detail">
-        <h1 class="product-title">{{ coffee.name }}</h1>
-        <img src="{{ coffee.image_url }}" alt="{{ coffee.name }}" class="product-image">
+    <div class="productDetail">
+        <h1 style="text-align: center">{{ coffee.name }}</h1>
+        <img style="display: block; margin: 0 auto" src="{{ coffee.image_url }}" alt="{{ coffee.name }}" class="product-image">
         <p class="product-price">Цена: {{ coffee.price }} ₽</p>
+        <br>
         <p class="product-description">{{ coffee.description }}</p>
     </div>
 {% endblock %}

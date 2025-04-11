@@ -1,30 +1,27 @@
-/* Сброс стандартных стилей */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+h1,h2,h3,p,a {
+    font-family: "Aboreto", system-ui;
+    font-weight: 400;
+    color: #363751;
+}
 h1 {
-    font-family: 'Aboreto', Times, serif ;
-    font-size: 28px;
-    font-weight: bold;
+    font-size: 26px;
     color: #363751;
     margin-left: 10px;
 }
-/* Общий стиль */
 body {
     background-color: #f9f9f9;
 }
-
-/* Контейнер главной страницы */
 .home {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-
-/* Шапка сайта */
 .header {
     width: 100%;
     background-color: #f3f4f6;
@@ -34,33 +31,26 @@ body {
     padding: 15px 50px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
-
-/* Логотип */
 .logo_group {
     display: flex;
     align-items: center;
 }
-
 .logo {
     width: 60px;
     height: 60px;
 }
-
 .name {
     font-size: 28px;
     font-weight: bold;
     color: #363751;
     margin-left: 10px;
 }
-
-/* Поиск */
 .search_group {
     display: flex;
     align-items: center;
 }
-
 .search {
-    width: 280px;
+    width: 250px;
     height: 40px;
     padding: 10px;
     font-size: 16px;
@@ -68,20 +58,16 @@ body {
     border: 1px solid #ccc;
     outline: none;
 }
-
 .search_icon {
     width: 40px;
     height: 40px;
     margin-left: -40px;
     cursor: pointer;
 }
-
-/* Навигация */
 .links_group {
     display: flex;
     gap: 30px;
 }
-
 .main_links {
     text-decoration: none;
     font-size: 22px;
@@ -89,12 +75,9 @@ body {
     font-weight: bold;
     transition: 0.3s;
 }
-
 .main_links:hover {
     color: #C41D24;
 }
-
-/* Сетка товаров */
 .content {
     display: flex;
     flex-wrap: wrap;
@@ -102,8 +85,6 @@ body {
     padding: 30px;
     gap: 30px;
 }
-
-/* Карточка товара */
 .card {
     width: 320px;
     background: white;
@@ -132,29 +113,11 @@ body {
     color: #363751;
 }
 
-/* Кнопка */
-.buy_button {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    color: white;
-    background-color: #363751;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.buy_button:hover {
-    background-color: #C41D24;
-}
-
-/* Подвал */
-.foot {
+footer {
     width: 100%;
     padding: 20px;
     background-color: #f3f4f6;
-    text-align: center;
+    text-align: left;
     position: fixed;
     bottom: 0;
     font-size: 16px;
@@ -178,7 +141,7 @@ body {
     list-style-type: none;
     display: none;
     position: absolute;
-    min-width: 100px;
+    min-width: 125px;
     text-align: center;
     border: 1px solid #f3f4f6;
     border-radius: 15px;
@@ -191,10 +154,64 @@ body {
     list-style-type: none;
 }
 .basketPosition {
+    position: relative;
     border: 2px solid #f3f4f6;
     border-radius: 5px;
     background-color: #f3f4f6;
     padding: 10px 20px;
     margin: 15px;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
+}
+.deleteButton {
+    position: absolute;
+    right: 0;
+    top: 0;
+    border: 1px solid #ccc;
+    padding: 5px 9px;
+    border-radius: 15px;
+    cursor: pointer;
+}
+.cardName {
+    text-decoration: none;
+    color: #363751;
+}
+.cardName:hover {
+    border-bottom: 2px solid #363751;
+}
+.cardText {
+    padding-top:6px;
+    color: #363751;
+    font-size: 14px;
+}
+aside {
+    border: 3px solid #f3f4f6;
+    background: #f3f4f6;
+    border-radius: 15px;
+    padding: 6px;
+    margin: 5px 35px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
+}
+.submitButton {
+    margin-top: 7px;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    color: white;
+    background-color: #363751;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.submitButton:hover {
+    color: darkred;
+}
+.productDetail {
+    border: 2px solid #f3f4f6;
+    border-radius: 20px;
+    padding: 30px;
+    background: #f3f4f6;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
+    margin: 10px 50px;
+
 }

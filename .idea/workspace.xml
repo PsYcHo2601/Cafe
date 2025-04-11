@@ -9,8 +9,8 @@
       <change beforePath="$PROJECT_DIR$/bmstu_lab/static/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/static/css/styles.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/staticfiles/css/styles.css" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
