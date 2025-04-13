@@ -17,8 +17,8 @@
 
     <!-- Корзина -->
     <div style="border: 1px solid #ccc; padding: 10px; border-radius: 20px; cursor: pointer;">
-        <a href="{% url 'basket_detail' %}" style="text-decoration: none; color: #363751; font-weight: 400;">
-            🛒 {{ basket_count }} товаров
+        <a href="{% url 'orders_detail' %}" style="text-decoration: none; color: #363751; font-weight: 400;">
+            🛒 {{ orders_count }} товаров
         </a>
     </div>
 
@@ -34,10 +34,10 @@
                     <p class="cardText">Цена: {{ item.price }} ₽</p>
                     <p class="cardText">Дата: {{ item.date }}</p>
                 </aside>
-                {% if item.added_to_basket %}
+                {% if item.added_to_orders %}
                     <p style="font-size: 20px; color: darkred;  margin-top: 7px; padding: 10px;"> Уже в вашей корзине :) </p>
                 {% else %}
-                    <form method="POST" action="{% url 'add_to_basket' item.id %}">
+                    <form method="POST" action="{% url 'add_to_orders' item.id %}">
                         {% csrf_token %}
                         <button class="submitButton" type="submit">Добавить в корзину</button>
                     </form>

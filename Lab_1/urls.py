@@ -19,9 +19,24 @@ from django.urls import path
 from bmstu_lab import views
 
 # test
+from django.urls import path
+from bmstu_lab import views
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path
+from django.contrib import admin
+
 urlpatterns = [
+    path('', views.coffee_list, name='home'),  # ✅ Теперь главная страница доступна
+    path('coffee/', views.coffee_list, name='coffee_list'),
+    path('coffee/<int:coffee_id>/', views.coffee_detail, name='coffee_detail'),
+    path('orders/', views.orders_detail, name='orders_detail'),
+    path('orders/add/<int:product_id>/', views.add_to_orders, name='add_to_orders'),
+    path('orders/delete/<int:product_id>/', views.delete_from_orders, name='delete_from_orders'),
     path('admin/', admin.site.urls),
-    path('hello/', views.hello),
-    path('admin/',),
-    path('',),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

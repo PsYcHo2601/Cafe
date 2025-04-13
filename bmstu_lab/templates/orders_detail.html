@@ -3,13 +3,13 @@
 {% block content %}
     <h1>Ваш заказ</h1>
 
-    {% if basket %}
+    {% if orders %}
         <ul class="basketOptional">
-            {% for item in basket %}
+            {% for item in orders %}
                 <li class="basketPosition">
                     <img src="{{ item.image_url }}" alt="{{ item.name }}" width="50">
                     <p>{{ item.name }} - {{ item.price }} ₽</p>
-                    <form method="POST" action="{% url 'delete_from_basket' item.id %}">
+                    <form method="POST" action="{% url 'delete_from_orders' item.id %}">
                         {% csrf_token %}
                         <button type="submit" class="deleteButton">✖</button>
                     </form>
