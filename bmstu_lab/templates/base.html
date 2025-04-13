@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Vlado`s Coffee{% endblock %}</title>
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}?t={{ now|date:'U' }}">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Aboreto&family=Gidole&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="home">
+            <!-- Хедер -->
+            <div class="header">
+                <div class="logo_group">
+                    <a href="/"><img class="logo" src="http://127.0.0.1:9000/cafe/main_image.png" alt="Vlados-coffee-image"></a>
+                    <p class="name">Vlado`s coffee</p>
+                </div>
+                <!-- Меню навигации -->
+                <div class="links_group">
+                    <a href="{% url 'basket_detail' %}" class="main_links"><h1>Заказ</h1></a>
+                    <ul>
+                        <li class="root">
+                            <h1>Контакты</h1>
+                            <ul class="dropdown">
+                                <li><a href="https://web.telegram.org/a/"><img src="http://127.0.0.1:9000/cafe/tg.png" alt="telegram"></a></li>
+                                <li><a href="https://vk.com/vladospapiross"><img src="http://127.0.0.1:9000/cafe/vk.png" alt="vk"></a></li>
+                                <li><a href="tel:+79296049780"><img src="http://127.0.0.1:9000/cafe/whatsapp.png" alt="whatsapp"></a></li>
+                                <li><a href="mailto:sedvlad2015@yandex.ru"><img src="http://127.0.0.1:9000/cafe/email.png" alt="mail" style="width: 40px;"></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Контент -->
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+        </div> 
+    </body>
+</html>

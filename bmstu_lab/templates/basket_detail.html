@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Ваш заказ{% endblock %}
+{% block content %}
+    <h1>Ваш заказ</h1>
+
+    {% if basket %}
+        <ul class="basketOptional">
+            {% for item in basket %}
+                <li class="basketPosition">
+                    <img src="{{ item.image_url }}" alt="{{ item.name }}" width="50">
+                    <p>{{ item.name }} - {{ item.price }} ₽</p>
+                    <form method="POST" action="{% url 'delete_from_basket' item.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="deleteButton">✖</button>
+                    </form>
+                </li>
+
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class=""> Тут ничего нету :( </p>
+    {% endif %}
+{% endblock %}

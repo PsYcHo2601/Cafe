@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Список товаров{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">Список товаров</h1>
+
+    <!-- Форма поиска и фильтрации -->
+    <form method="GET" action="" class="filter-form">
+        <input type="text" class="search search-input" placeholder="Поиск..." name="search" value="{{ search_query }}">
+        <select name="filter_by" style="border: 1px solid #ccc; border-radius: 20px;height: 40px; padding: 10px; color: #ccc; font-size: 16px;">
+            <option value="all" {% if filter_by == "all" %}selected{% endif %}>Без сортировки</option>
+            <option value="price" {% if filter_by == "price" %}selected{% endif %}>По цене</option>
+            <option value="date" {% if filter_by == "date" %}selected{% endif %}>По дате</option>
+        </select>
+        <button type="submit" style="border: 1px solid #ccc; padding: 10px; border-radius: 20px; cursor: pointer;">✔</button>
+    </form>
+
+    <!-- Корзина -->
+    <div style="border: 1px solid #ccc; padding: 10px; border-radius: 20px; cursor: pointer;">
+        <a href="{% url 'basket_detail' %}" style="text-decoration: none; color: #363751; font-weight: 400;">
+            🛒 {{ basket_count }} товаров
+        </a>
+    </div>
+
+    <!-- Сетка товаров -->
+    <div class="content">
+        {% for item in coffee %}
+            <div class="card">
+                <img src="{{ item.image_url }}" alt="{{ item.name }}">
+                <h1>       
+                    <a class="cardName" href="{% url 'coffee_detail' coffee_id=item.id %}">{{ item.name }}</a>
+                </h1>
+                <aside>
+                    <p class="cardText">Цена: {{ item.price }} ₽</p>
+                    <p class="cardText">Дата: {{ item.date }}</p>
+                </aside>
+                {% if item.added_to_basket %}
+                    <p style="font-size: 20px; color: darkred;  margin-top: 7px; padding: 10px;"> Уже в вашей корзине :) </p>
+                {% else %}
+                    <form method="POST" action="{% url 'add_to_basket' item.id %}">
+                        {% csrf_token %}
+                        <button class="submitButton" type="submit">Добавить в корзину</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    <footer>
+        <p>
+            © 2017 - 2025 Vlado`s coffee bar
+        </p>
+    </footer>
+{% endblock %}
