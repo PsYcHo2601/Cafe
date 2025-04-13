@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dbb65c11-47b2-48db-a108-028847eda0df" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Changes1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Changes1.xml" afterDir="false" />
+    <list default="true" id="dbb65c11-47b2-48db-a108-028847eda0df" name="Changes" comment="Убрал бд из лабораторной. убрал слово basket, рефактор кода">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lab_1/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lab_1/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/orders_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/views.py" afterDir="false" />
     </list>
@@ -111,9 +109,49 @@
       <workItem from="1740992872344" duration="8875000" />
       <workItem from="1741685569746" duration="1320000" />
     </task>
+    <task id="LOCAL-00001" summary="Убрал бд из лабораторной. убрал слово basket, рефактор кода">
+      <option name="closed" value="true" />
+      <created>1744573162257</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1744573162257</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Убрал бд из лабораторной. убрал слово basket, рефактор кода" />
+    <option name="LAST_COMMIT_MESSAGE" value="Убрал бд из лабораторной. убрал слово basket, рефактор кода" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>105</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>106</line>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>107</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="Python.DjangoServer">
+        <watch expression="next((item for item in coffee if item['id'] == str(product_id)), None)" />
+        <watch expression="coffee" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

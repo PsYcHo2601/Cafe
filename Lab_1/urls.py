@@ -30,10 +30,9 @@ urlpatterns = [
     path('', views.coffee_list, name='home'),  # ✅ Теперь главная страница доступна
     path('coffee/', views.coffee_list, name='coffee_list'),
     path('coffee/<int:coffee_id>/', views.coffee_detail, name='coffee_detail'),
-    path('orders/', views.orders_detail, name='orders_detail'),
+    path('orders/<str:order_id>/', views.orders_detail, name='orders_detail'),
     path('orders/add/<int:product_id>/', views.add_to_orders, name='add_to_orders'),
     path('orders/delete/<int:product_id>/', views.delete_from_orders, name='delete_from_orders'),
-    path('admin/', admin.site.urls),
 ]
 
 if settings.DEBUG:

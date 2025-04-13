@@ -17,7 +17,7 @@
 
     <!-- Корзина -->
     <div style="border: 1px solid #ccc; padding: 10px; border-radius: 20px; cursor: pointer;">
-        <a href="{% url 'orders_detail' %}" style="text-decoration: none; color: #363751; font-weight: 400;">
+        <a href="{% url 'orders_detail' '1' %}" style="text-decoration: none; color: #363751; font-weight: 400;">
             🛒 {{ orders_count }} товаров
         </a>
     </div>

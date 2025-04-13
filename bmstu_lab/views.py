@@ -1,10 +1,5 @@
-from datetime import datetime
-
 from django.http import Http404
-from django.shortcuts import render, get_object_or_404
-from django.db.models import Q
-from django.shortcuts import render, get_object_or_404, redirect
-from django.db import connection
+from django.shortcuts import render
 
 MINIO_URL = "http://localhost:9000/cafe"
 
@@ -29,16 +24,29 @@ coffee = [
      "image_url": "http://localhost:9000/cafe/capuccino.png"}
 ]
 
-orders = {'1': {"id": 1, "name": "американо", "price": 229, "date": "2025-04-10",
-                "description": "Кофе американо.",
-                "image_url": "http://localhost:9000/cafe/americano.png"}}
+# Заказы достаются по идентификатору заказа. Идентификатор захардкожен (нет авторизации)
+
+orders = {'1': {'1': {"id": 1, "name": "американо", "price": 229, "date": "2025-04-10",
+                      "description": "Кофе американо.",
+                      "image_url": "http://localhost:9000/cafe/americano.png"}},
+          '2': {'1': {"id": 6, "name": "Капучино", "price": 319, "date": "2025-04-20",
+                      "description": "Капучино.",
+                      "image_url": "http://localhost:9000/cafe/capuccino.png"}},
+          '3': {'1': {"id": 5, "name": "Горячий шоколад", "price": 349, "date": "2025-04-20",
+                      "description": "Горячий шоколад.",
+                      "image_url": "http://localhost:9000/cafe/hotchokolate.png"},
+                '2': {"id": 4, "name": "Венский кофе", "price": 349, "date": "2025-04-15",
+                      "description": "Венский кофе",
+                      "image_url": "http://localhost:9000/cafe/viennesecoffee.png"}
+                }
+          }
 
 
-def get_orders():
-    return orders
+def get_orders(order_id='1'):
+    return orders[order_id]
 
 
-def coffee_list(request):
+def coffee_list(request, order_id='1'):
     """
     Перечень кофе (+поиск по наименованию, фильтрация по цене и дате)
     """
@@ -52,7 +60,7 @@ def coffee_list(request):
         filtered_coffee = [item for item in filtered_coffee
                            if search_query in item['name'].lower()]
 
-    orders_items = orders.keys()
+    orders_items = orders[order_id].keys()
     for item in filtered_coffee:
         item['added_to_orders'] = str(item['id']) in orders_items
 
@@ -62,7 +70,7 @@ def coffee_list(request):
     elif filter_by == "date":
         filtered_coffee.sort(key=lambda x: x['date'], reverse=True)
 
-    orders_count = len(orders)
+    orders_count = len(orders[order_id])
 
     return render(request, "coffee_list.html",
                   {"coffee": filtered_coffee, "orders_count": orders_count,
@@ -80,16 +88,16 @@ def coffee_detail(request, coffee_id):
     return render(request, "coffee_detail.html", {"coffee": item})
 
 
-def orders_detail(request):
+def orders_detail(request, order_id='1'):
     """
     Содержимое корзины
     :return: перечень товаров добавленных в корзину
     """
-    orders_items = orders.values()
+    orders_items = orders[order_id].values()
     return render(request, "orders_detail.html", {"orders": orders_items})
 
 
-def add_to_orders(request, product_id):
+def add_to_orders(request, product_id, order_id='1'):
     """
     Добавление в корзину
     :param product_id: идентификатор товара (кофе)
@@ -97,17 +105,17 @@ def add_to_orders(request, product_id):
     if request.method == "POST":
         product = next((item for item in coffee if item['id'] == product_id), None)
         if product:
-            orders[str(product_id)] = product
+            orders[order_id][str(product_id)] = product
     return coffee_list(request)
 
 
-def delete_from_orders(request, product_id):
+def delete_from_orders(request, product_id, order_id='1'):
     """
     Удаление из корзины
     :param product_id: идентификатор товара (кофе)
     """
     if str(product_id) in orders.keys():
-        del orders[str(product_id)]
+        del orders[order_id][str(product_id)]
     return orders_detail(request)
 
 
