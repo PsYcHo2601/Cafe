@@ -2,18 +2,8 @@ import datetime
 import uuid
 
 from django.contrib.auth.models import AbstractUser, Permission, Group
+from django.core.validators import MaxValueValidator
 from django.db import models
-
-
-class Coffee(models.Model):
-    name = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
-    date = models.DateField()
-    description = models.TextField()
-    image_url = models.URLField()
-
-    def __str__(self):
-        return self.name
 
 
 class AuthUser(models.Model):
@@ -28,7 +18,7 @@ class AuthUser(models.Model):
         verbose_name_plural = "Пользователи"
 
 
-class Orders(models.Model):
+class Dish(models.Model):
     DRAFT = 'draft'
     DELETED = 'deleted'
     FORMED = 'formed'
@@ -56,8 +46,10 @@ class Orders(models.Model):
                                   related_name='moderated_orders',
                                   verbose_name="Модератор"
                                   )
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True,
-                                       null=True, verbose_name="Общая сумма")
+    table_number = models.PositiveIntegerField(verbose_name="Номер стола", null=False, default=0,
+                                               validators=[MaxValueValidator(10)],
+                                               help_text="Номер стола не может превышать 10")
+    total_sum = models.PositiveIntegerField(verbose_name="Сумма заказа", null=False, default=0)
 
     def __str__(self):
         return f"Заявка #{self.id} ({self.get_status_display()})"
@@ -65,7 +57,7 @@ class Orders(models.Model):
     class Meta:
         verbose_name = "Заявка"
         verbose_name_plural = "Заявки"
-        db_table = 'orders'
+        db_table = 'dish'
         constraints = [
             models.UniqueConstraint(
                 fields=['creator'],
@@ -77,7 +69,7 @@ class Orders(models.Model):
 
 class OrderServices(models.Model):
     order = models.ForeignKey(
-        'Orders',
+        'Dish',
         on_delete=models.CASCADE,
         verbose_name="Заявка"
     )
@@ -86,9 +78,9 @@ class OrderServices(models.Model):
         on_delete=models.PROTECT,
         verbose_name="Услуга"
     )
-    quantity = models.PositiveIntegerField(default=1, verbose_name="Количество")
     is_main = models.BooleanField(default=False, verbose_name="Основная услуга")
     order_number = models.PositiveIntegerField(verbose_name="Порядковый номер", default=1)
+    guest_name = models.CharField(verbose_name='Имя гостя', max_length=255)
 
     def __str__(self):
         return f"{self.service.name} в заявке #{self.order.id}"

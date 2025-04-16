@@ -1,23 +1,22 @@
 from datetime import datetime
 
-from django.db.models import Q, Exists, OuterRef
-from django.shortcuts import render
-from bmstu_lab.models import Coffee, Services, Orders, OrderServices, AuthUser  # Убедись, что имя модели совпадает!
-from django.shortcuts import render, get_object_or_404
+from django.db.models import Q
+
+from bmstu_lab.models import Services, Dish, OrderServices, AuthUser  # Убедись, что имя модели совпадает!
 
 MINIO_URL = "http://localhost:9000/cafe"
 
 
-def get_basket():
+def get_dish():
     # todo будет доделано до нормального вида
     user_id = AuthUser.objects.all().order_by('login').first().id
-    if Orders.objects.filter(creator_id=user_id, status=Orders.DRAFT).exists():
-        basket = Orders.objects.get(creator_id=user_id, status=Orders.DRAFT)
+    if Dish.objects.filter(creator_id=user_id, status=Dish.DRAFT).exists():
+        dish = Dish.objects.get(creator_id=user_id, status=Dish.DRAFT)
     else:
-        basket = Orders(creator_id=user_id, created_at=datetime.now(), status=Orders.DRAFT)
-        basket.save()
+        dish = Dish(creator_id=user_id, created_at=datetime.now(), status=Dish.DRAFT)
+        dish.save()
 
-    return basket
+    return dish
 
 
 def coffee_list(request):
@@ -28,14 +27,13 @@ def coffee_list(request):
     filter_by = request.GET.get("filter_by", "all")
 
     flt = Q()
-    basket = get_basket()
-    orders = OrderServices.objects.filter(order_id=basket.id)
+    dish = get_dish()
+    orders = OrderServices.objects.filter(order_id=dish.id)
 
     if search_query:
         flt &= Q(name__icontains=search_query)
 
-    filtered_coffee = Services.objects.filter(flt).annotate(
-        added_to_basket=Exists(orders.filter(service_id=OuterRef('pk'))))
+    filtered_coffee = Services.objects.filter(flt)
 
     if filter_by == "price":
         filtered_coffee = filtered_coffee.order_by('price')
@@ -58,23 +56,25 @@ def coffee_detail(request, coffee_id):
     return render(request, "coffee_detail.html", {"coffee": item})
 
 
-def basket_detail(request):
+def dish_detail(request):
     """
     Содержимое корзины
     :return: перечень товаров добавленных в корзину
     """
-    basket = get_basket()
-    basket_services = OrderServices.objects.filter(order_id=basket.id).select_related('service')
+    dish = get_dish()
+    dish_services = OrderServices.objects.filter(order_id=dish.id).select_related('service')
 
     result = []
-    for basket_service in basket_services:
-        result.append(basket_service.service)
+    total_sum = 0
+    for dish_service in dish_services:
+        result.append(dish_service.service)
+        total_sum += dish_service.service.price
 
     # Страница корзины
-    return render(request, "basket_detail.html", {"basket": result})
+    return render(request, "basket_detail.html", {"basket": result, "total_sum": total_sum})
 
 
-def add_to_basket(request, product_id):
+def add_to_dish(request, product_id):
     """
     Добавление в корзину
     :param product_id: идентификатор товара (кофе)
@@ -83,22 +83,53 @@ def add_to_basket(request, product_id):
     if request.method == "POST":
         product = Services.objects.filter(id=product_id).first()
         if product:
-            basket = get_basket()
-            OrderServices.objects.get_or_create(order_id=basket.id, service_id=product.id)  # Добавляем товар в корзину
+            dish = get_dish()
+            OrderServices.objects.create(order_id=dish.id, service_id=product.id)
 
             # Возвращаем пользователя обратно на страницу списка товаров
     return coffee_list(request)
 
 
-def delete_from_backet(request, product_id):
+def update_coffee_guest_in_dish(request, order_service_id, guest_name):
+    OrderServices.objects.filter(id=order_service_id).update(guest_name=guest_name)
+
+    return dish_detail(request)
+
+
+def update_dish_table(request, table_number):
+    dish = get_dish()
+
+    dish.table_number = table_number
+    dish.save()
+
+    return dish_detail(request)
+
+
+def delete_from_dish(request, product_id):
     """
     Удаление из корзины
     :param product_id: идентификатор товара (кофе)
     """
-    basket = get_basket()
-    OrderServices.objects.filter(order_id=basket.id, service_id=product_id).delete()
+    dish = get_dish()
+    OrderServices.objects.filter(order_id=dish.id, service_id=product_id).delete()
 
-    return basket_detail(request)
+    return dish_detail(request)
+
+
+def set_dish_to_formed(request):
+    dish = get_dish()
+    dish.status = dish.FORMED
+
+    dish_services = OrderServices.objects.filter(order_id=dish.id).select_related('service')
+
+    total_sum = 0
+    for dish_service in dish_services:
+        total_sum += dish_service.service.price
+
+    dish.total_sum = total_sum
+    dish.save()
+
+    return dish_detail(request)
 
 
 from django.shortcuts import render

@@ -44,14 +44,14 @@ class OrderServiceInline(admin.TabularInline):
 
 @admin.register(Orders)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'status', 'creator__login', 'created_at', 'total_amount_display')
-    list_filter = ('status', 'created_at', 'moderator__login')
-    search_fields = ('creator__login', 'id')
+    list_display = ('id', 'status', 'table_number', 'creator__login', 'created_at', 'total_amount_display')
+    list_filter = ('status', 'table_number', 'created_at', 'moderator__login')
+    search_fields = ('creator__login', 'table_number', 'id')
     readonly_fields = ('created_at',)
 
     fieldsets = (
         (None, {
-            'fields': ('status', 'creator')
+            'fields': ('status', 'table_number', 'creator')
         }),
         ('Даты', {
             'fields': ('created_at', 'formed_at', 'completed_at'),
