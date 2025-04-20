@@ -7,12 +7,7 @@ class Product(models.Model):
     description = models.TextField(blank=True, verbose_name="Описание")
     price = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Цена")
     is_available = models.BooleanField(default=True, verbose_name="Доступен для заказа")
-    image = models.ImageField(
-        upload_to='products/',
-        verbose_name="Изображение",
-        blank=True,
-        null=True
-    )
+    image = models.URLField(max_length=255, blank=True, null=True, verbose_name="URL изображения")
 
     def __str__(self):
         return self.name
