@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import AuthUser, Services, OrderServices, Orders
+from .models import AuthUser, Services, OrderServices, Dish
 
 
 @admin.register(AuthUser)
@@ -42,11 +42,11 @@ class OrderServiceInline(admin.TabularInline):
     raw_id_fields = ('service',)
 
 
-@admin.register(Orders)
+@admin.register(Dish)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'status', 'table_number', 'creator__login', 'created_at', 'total_amount_display')
+    list_display = ('id', 'status', 'table_number', 'created_at', 'total_sum_display')
     list_filter = ('status', 'table_number', 'created_at', 'moderator__login')
-    search_fields = ('creator__login', 'table_number', 'id')
+    search_fields = ('table_number', 'id')
     readonly_fields = ('created_at',)
 
     fieldsets = (
@@ -58,19 +58,19 @@ class OrderAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
         ('Модерация', {
-            'fields': ('moderator', 'total_amount'),
+            'fields': ('moderator', 'total_sum'),
             'classes': ('collapse',)
         }),
     )
     inlines = [OrderServiceInline]
     actions = ['calculate_total']
 
-    def total_amount_display(self, obj):
-        if obj.total_amount:
-            return f"{obj.total_amount} руб."
+    def total_sum_display(self, obj):
+        if obj.total_sum:
+            return f"{obj.total_sum} руб."
         return "-"
 
-    total_amount_display.short_description = "Сумма"
+    total_sum_display.short_description = "Сумма"
 
     def calculate_total(self, request, queryset):
         for order in queryset:
@@ -82,7 +82,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(OrderServices)
 class OrderServiceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'order', 'service', 'quantity', 'is_main')
+    list_display = ('id', 'order', 'service', 'is_main')
     list_filter = ('is_main', 'service')
     raw_id_fields = ('order', 'service')
     search_fields = ('order__id', 'service__name')
@@ -91,6 +91,6 @@ class OrderServiceAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('order', 'service', 'quantity', 'is_main', 'order_number')
+            'fields': ('order', 'service', 'is_main', 'order_number')
         }),
     )
