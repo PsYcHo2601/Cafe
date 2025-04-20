@@ -6,7 +6,7 @@
         {% for item in items %}
         <li>
             <div class="item-image">
-                <img src="{{ item.product.image_or_default }}"
+                <img src="{{ item.product.image }}"
                      alt="{{ item.product.name }}"
                      onerror="this.src='{% static 'images/coffee-placeholder.jpg' %}'">
             </div>

@@ -12,12 +12,6 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-    @property
-    def image_url(self):
-        if self.image and hasattr(self.image, 'url'):
-            return self.image.url
-        return '/static/images/coffee-placeholder.jpg'  # Запасное изображение
-
     class Meta:
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"

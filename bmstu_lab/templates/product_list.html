@@ -9,10 +9,7 @@
             {% for product in products %}
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="{{ product.image_or_default }}"
-                             alt="{{ product.name }}"
-                             onerror="this.onerror=null;this.src='{% static 'images/coffee-placeholder.jpg' %}'"
-                             loading="lazy">
+                        <img src="{{ product.image }}" alt="{{ product.name }}">
                     </div>
                     <div class="product-info">
                         <h2>{{ product.name }}</h2>

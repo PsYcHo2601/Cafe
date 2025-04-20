@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'Lab_1.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'cafe'),
+        'NAME': os.getenv('POSTGRES_DB', 'cafe2'),
         'USER': os.getenv('POSTGRES_USER', 'minio'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'minio124'),
         'HOST': 'localhost',
