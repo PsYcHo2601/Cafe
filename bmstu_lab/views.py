@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
@@ -158,3 +159,51 @@ class OrderStatusUpdateView(LoginRequiredMixin, View):
             messages.success(request, f'Статус заказа изменен на "{order.get_status_display()}"')
 
         return redirect('order_detail', pk=order.pk)
+
+
+@login_required
+def add_to_order(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            product = Product.objects.get(id=data['product_id'])
+            table = Table.objects.get(id=data['table_id'])
+
+            # Получаем или создаем заказ
+            order, created = Order.objects.get_or_create(
+                table=table,
+                status__in=['new', 'preparing'],
+                defaults={
+                    'waiter': request.user,
+                    'status': 'new'
+                }
+            )
+
+            # Добавляем позицию
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=1,
+                price=product.price
+            )
+
+            return JsonResponse({
+                'success': True,
+                'order_id': order.id
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+
+
+class CurrentOrderView(LoginRequiredMixin, DetailView):
+    template_name = 'order_preview.html'
+
+    def get_object(self):
+        return Order.objects.filter(
+            waiter=self.request.user,
+            status__in=['new', 'preparing']
+        ).first()

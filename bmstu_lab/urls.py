@@ -12,4 +12,6 @@ urlpatterns = [
     path('order/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
     path('order/<int:pk>/update/', views.OrderUpdateView.as_view(), name='order_update'),
     path('order/<int:pk>/update-status/', views.OrderStatusUpdateView.as_view(), name='order_status_update'),
+    path('api/add-to-order/', views.add_to_order, name='add_to_order'),
+    path('orders/current/', views.CurrentOrderView.as_view(), name='current_order'),
 ]
