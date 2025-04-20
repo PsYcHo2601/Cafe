@@ -17,20 +17,16 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'is_available')
-    list_filter = ('is_available',)
-    search_fields = ('name', 'description')
-    list_editable = ('price', 'is_available')
-    prepopulated_fields = {'description': ('name',)}
+    list_display = ('name', 'price', 'is_available', 'image_preview')
+    readonly_fields = ('image_preview',)
 
-    fieldsets = (
-        (None, {
-            'fields': ('name', 'description', 'price')
-        }),
-        ('Доступность', {
-            'fields': ('is_available',)
-        }),
-    )
+    def image_preview(self, obj):
+        return format_html(
+            '<img src="{}" style="max-height: 100px; max-width: 100px;" />',
+            obj.image_url
+        )
+
+    image_preview.short_description = "Превью"
 
 
 @admin.register(Order)

@@ -7,9 +7,21 @@ class Product(models.Model):
     description = models.TextField(blank=True, verbose_name="Описание")
     price = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Цена")
     is_available = models.BooleanField(default=True, verbose_name="Доступен для заказа")
+    image = models.ImageField(
+        upload_to='products/',
+        verbose_name="Изображение",
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.name
+
+    @property
+    def image_url(self):
+        if self.image and hasattr(self.image, 'url'):
+            return self.image.url
+        return '/static/images/coffee-placeholder.jpg'  # Запасное изображение
 
     class Meta:
         verbose_name = "Продукт"

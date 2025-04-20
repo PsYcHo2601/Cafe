@@ -1,59 +1,22 @@
-{% extends "base.html" %}
-{% load static %}
+<!-- templates/order_detail.html -->
+{% for guest, items in grouped_items.items %}
+<div class="guest-section">
+    <h3>{% if guest == 'Общий заказ' %}{{ guest }}{% else %}Для {{ guest }}{% endif %}</h3>
 
-{% block title %}Заказ #{{ order.id }} | Vlado`s Coffee{% endblock %}
-
-{% block content %}
-<div class="order-detail-container">
-    <h1 class="page-title">Заказ #{{ order.id }} - Столик №{{ order.table.number }}</h1>
-    
-    <div class="order-meta">
-        <p><strong>Статус:</strong> <span class="status-badge {{ order.status }}">{{ order.get_status_display }}</span></p>
-        <p><strong>Официант:</strong> {{ order.waiter.username }}</p>
-        <p><strong>Дата создания:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
-    </div>
-    
-    <div class="order-items">
-        <h2>Состав заказа:</h2>
-        
-        {% for guest, items in grouped_items.items %}
-        <div class="guest-section">
-            <h3>{% if guest == 'Общий заказ' %}{{ guest }}{% else %}Для {{ guest }}{% endif %}</h3>
-            
-            <ul class="items-list">
-                {% for item in items %}
-                <li>
-                    <span class="item-number">{{ item.item_number }}.</span>
-                    <span class="item-name">{{ item.product.name }}</span>
-                    <span class="item-quantity">×{{ item.quantity }}</span>
-                    <span class="item-price">{{ item.price }} ₽</span>
-                    <span class="item-total">{{ item.total_price }} ₽</span>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+    <ul class="items-list">
+        {% for item in items %}
+        <li>
+            <div class="item-image">
+                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}">
+            </div>
+            <div class="item-details">
+                <span class="item-number">{{ item.item_number }}.</span>
+                <span class="item-name">{{ item.product.name }}</span>
+                <span class="item-quantity">×{{ item.quantity }}</span>
+                <span class="item-price">{{ item.price }} ₽</span>
+            </div>
+        </li>
         {% endfor %}
-    </div>
-    
-    <div class="order-totals">
-        <div class="total-section">
-            <h3>Итого:</h3>
-            <p class="total-amount">{{ order.total_sum }} ₽</p>
-        </div>
-    </div>
-    
-    <div class="order-actions">
-        <a href="{% url 'coffee:order_update' pk=order.pk %}" class="edit-btn">Редактировать</a>
-        
-        <form method="post" action="{% url 'coffee:order_status_update' pk=order.pk %}" class="status-form">
-            {% csrf_token %}
-            <select name="status" class="status-select">
-                {% for status, name in order.STATUS_CHOICES %}
-                <option value="{{ status }}" {% if status == order.status %}selected{% endif %}>{{ name }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="update-status-btn">Обновить статус</button>
-        </form>
-    </div>
+    </ul>
 </div>
-{% endblock %}
+{% endfor %}
