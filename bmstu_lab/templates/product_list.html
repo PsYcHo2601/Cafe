@@ -2,35 +2,36 @@
 {% load static %}
 
 {% block content %}
-<div class="products-container">
-    <h1 class="page-title">Наше меню</h1>
+    <div class="products-container">
+        <h1 class="page-title">Наше меню</h1>
 
-    <div class="products-grid">
-        {% for product in products %}
-        <div class="product-card">
-            <div class="product-image">
-                <img src="{{ product.image_or_default }}"
-                     alt="{{ product.name }}"
-                     onerror="this.src='{% static 'images/coffee-placeholder.jpg' %}'">
-            </div>
-            <div class="product-info">
-                <h2>{{ product.name }}</h2>
-                <p class="product-description">{{ product.description|default:"Описание отсутствует" }}</p>
-                <div class="product-footer">
-                    <span class="product-price">{{ product.price }} ₽</span>
-                    {% if user.is_authenticated %}
-                    <button class="add-to-order" data-product-id="{{ product.id }}">
-                        Добавить в заказ
-                    </button>
-                    {% endif %}
+        <div class="products-grid">
+            {% for product in products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="{{ product.image_or_default }}"
+                             alt="{{ product.name }}"
+                             onerror="this.onerror=null;this.src='{% static 'images/coffee-placeholder.jpg' %}'"
+                             loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <h2>{{ product.name }}</h2>
+                        <p class="product-description">{{ product.description|default:"Описание отсутствует" }}</p>
+                        <div class="product-footer">
+                            <span class="product-price">{{ product.price }} ₽</span>
+                            {% if user.is_authenticated %}
+                                <button class="add-to-order" data-product-id="{{ product.id }}">
+                                    Добавить в заказ
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-            </div>
+            {% empty %}
+                <div class="no-products">
+                    <p>К сожалению, сейчас все кофе закончились</p>
+                </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="no-products">
-            <p>К сожалению, сейчас все кофе закончились</p>
-        </div>
-        {% endfor %}
     </div>
-</div>
 {% endblock %}
