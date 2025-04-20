@@ -1,28 +1,27 @@
-"""
-URL configuration for Lab_1 project.
+from django.urls import path
+from bmstu_lab.views import (
+    ServicesListView,
+    ServicesDetailView,
+    ServicesImageUploadView,
+    AddToDraftView,
+    DishListView,
+    DishDetailView,
+    FormDishView,
+    CompleteDishView
+)
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.urls import path
-from bmstu_lab import views
-from django.conf import settings
-from django.conf.urls.static import static
-from django.urls import path
-from django.contrib import admin
 urlpatterns = [
+    # URLs для услуг (Services)
+    path('services/', ServicesListView.as_view(), name='services-list'),
+    path('services/<uuid:pk>/', ServicesDetailView.as_view(), name='services-detail'),
+    path('services/<uuid:pk>/image/', ServicesImageUploadView.as_view(), name='services-image-upload'),
+    path('services/<uuid:service_id>/add-to-draft/', AddToDraftView.as_view(), name='add-to-draft'),
 
-    path('admin/', admin.site.urls),
+    # URLs для заявок (Dish)
+    path('dishes/', DishListView.as_view(), name='dishes-list'),
+    path('dishes/<uuid:pk>/', DishDetailView.as_view(), name='dishes-detail'),
+    path('dishes/<uuid:pk>/form/', FormDishView.as_view(), name='form-dish'),
+    path('dishes/<uuid:pk>/complete/', CompleteDishView.as_view(), name='complete-dish'),
 ]
 
 if settings.DEBUG:
