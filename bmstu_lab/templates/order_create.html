@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Новый заказ | Vlado`s Coffee{% endblock %}
+
+{% block extra_css %}
+<style>
+    .order-form {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .formset-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: flex-end;
+    }
+    .add-row {
+        margin: 20px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="order-create-container">
+    <h1 class="page-title">Новый заказ для столика №{{ table.number }}</h1>
+    
+    <form method="post" class="order-form">
+        {% csrf_token %}
+        
+        {{ form.non_field_errors }}
+        
+        <div class="formset-container">
+            {{ formset.management_form }}
+            
+            {% for form in formset %}
+            <div class="formset-row">
+                {{ form.id }}
+                <div class="form-field">
+                    {{ form.product.label_tag }}
+                    {{ form.product }}
+                </div>
+                <div class="form-field">
+                    {{ form.quantity.label_tag }}
+                    {{ form.quantity }}
+                </div>
+                <div class="form-field">
+                    {{ form.guest_name.label_tag }}
+                    {{ form.guest_name }}
+                </div>
+                <div class="form-field">
+                    {{ form.DELETE.label_tag }}
+                    {{ form.DELETE }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="form-actions">
+            <button type="button" class="add-row-btn">Добавить позицию</button>
+            <button type="submit" class="submit-btn">Создать заказ</button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Добавление новой строки в formset
+    document.querySelector('.add-row-btn').addEventListener('click', function() {
+        const totalForms = document.querySelector('#id_form-TOTAL_FORMS');
+        const formNum = parseInt(totalForms.value);
+        const newForm = document.querySelector('.formset-row').cloneNode(true);
+        
+        // Обновляем атрибуты name и id
+        const regex = new RegExp('form-\\d+-', 'g');
+        newForm.innerHTML = newForm.innerHTML.replace(regex, `form-${formNum}-`);
+        
+        // Очищаем значения
+        newForm.querySelectorAll('input, select').forEach(el => {
+            if (el.type !== 'hidden' && !el.name.includes('DELETE')) {
+                el.value = '';
+            }
+        });
+        
+        // Добавляем новую строку
+        document.querySelector('.formset-container').insertBefore(newForm, document.querySelector('.form-actions'));
+        totalForms.value = formNum + 1;
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

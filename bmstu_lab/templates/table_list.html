@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Столики | Vlado`s Coffee{% endblock %}
+
+{% block content %}
+<div class="tables-container">
+    <h1 class="page-title">Выберите столик</h1>
+    
+    <div class="tables-grid">
+        {% for table in tables %}
+        <div class="table-card {% if table.current_order %}occupied{% endif %}">
+            <a href="{% if table.current_order %}{% url 'coffee:order_detail' pk=table.current_order.pk %}{% else %}{% url 'coffee:order_create' table_id=table.id %}{% endif %}">
+                <h2>Столик №{{ table.number }}</h2>
+                {% if table.current_order %}
+                <p class="status-badge {{ table.current_order.status }}">
+                    {{ table.current_order.get_status_display }}
+                </p>
+                <p>Официант: {{ table.current_order.waiter.username }}</p>
+                {% else %}
+                <p class="status-badge free">Свободен</p>
+                {% endif %}
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

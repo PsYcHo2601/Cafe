@@ -1,96 +1,114 @@
 from django.contrib import admin
 from django.utils.html import format_html
-
-from .models import AuthUser, Services, OrderServices, Orders
-
-
-@admin.register(AuthUser)
-class AuthUserAdmin(admin.ModelAdmin):
-    list_display = ('login', 'is_staff')
-    list_filter = ('is_staff',)
-    search_fields = ('login',)
-    ordering = ('login',)
+from .models import Product, Order, OrderItem, Table
 
 
-@admin.register(Services)
-class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_active', 'price', 'date', 'image_preview')
-    list_filter = ('is_active', 'price', 'date')
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+    fields = ('product', 'quantity', 'guest_name', 'price', 'item_number', 'total_price')
+    readonly_fields = ('price', 'total_price')
+
+    def total_price(self, obj):
+        return obj.price * obj.quantity
+
+    total_price.short_description = 'Сумма'
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'is_available')
+    list_filter = ('is_available',)
     search_fields = ('name', 'description')
-    readonly_fields = ('image_preview',)
+    list_editable = ('price', 'is_available')
+    prepopulated_fields = {'description': ('name',)}
+
     fieldsets = (
         (None, {
-            'fields': ('name', 'description', 'price', 'date', 'is_active')
+            'fields': ('name', 'description', 'price')
         }),
-        ('Изображение', {
-            'fields': ('image_url',),
-            'classes': ('collapse',)
+        ('Доступность', {
+            'fields': ('is_available',)
         }),
     )
 
-    def image_preview(self, obj):
-        if obj.image_url:
-            return format_html('<img src="{}" style="max-height: 100px;"/>', obj.image_url)
-        return "-"
 
-    image_preview.short_description = "Превью"
-
-
-class OrderServiceInline(admin.TabularInline):
-    model = OrderServices
-    extra = 1
-    raw_id_fields = ('service',)
-
-
-@admin.register(Orders)
+@admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'status', 'table_number', 'creator__login', 'created_at', 'total_amount_display')
-    list_filter = ('status', 'table_number', 'created_at', 'moderator__login')
-    search_fields = ('creator__login', 'table_number', 'id')
-    readonly_fields = ('created_at',)
+    list_display = ('id', 'table_number', 'waiter_info', 'status', 'created_at', 'total_sum')
+    list_filter = ('status', 'created_at', 'waiter')
+    search_fields = ('table__number', 'waiter__username')
+    inlines = (OrderItemInline,)
+    readonly_fields = ('created_at', 'updated_at')
+    actions = ['mark_as_completed']
 
     fieldsets = (
         (None, {
-            'fields': ('status', 'table_number', 'creator')
+            'fields': ('table', 'waiter', 'status')
         }),
         ('Даты', {
-            'fields': ('created_at', 'formed_at', 'completed_at'),
+            'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
-        ('Модерация', {
-            'fields': ('moderator', 'total_amount'),
+        ('Дополнительно', {
+            'fields': ('notes',),
             'classes': ('collapse',)
         }),
     )
-    inlines = [OrderServiceInline]
-    actions = ['calculate_total']
 
-    def total_amount_display(self, obj):
-        if obj.total_amount:
-            return f"{obj.total_amount} руб."
+    def table_number(self, obj):
+        return f"№{obj.table.number}"
+
+    table_number.short_description = 'Столик'
+
+    def waiter_info(self, obj):
+        return obj.waiter.get_full_name() or obj.waiter.username
+
+    waiter_info.short_description = 'Официант'
+
+    def total_sum(self, obj):
+        return sum(item.price * item.quantity for item in obj.items.all())
+
+    total_sum.short_description = 'Сумма заказа'
+
+    def mark_as_completed(self, request, queryset):
+        queryset.update(status='completed')
+
+    mark_as_completed.short_description = "Пометить как завершенные"
+
+
+@admin.register(Table)
+class TableAdmin(admin.ModelAdmin):
+    list_display = ('number', 'is_active', 'current_order_link')
+    list_filter = ('is_active',)
+    list_editable = ('is_active',)
+
+    def current_order_link(self, obj):
+        order = Order.objects.filter(table=obj, status__in=['new', 'preparing', 'ready']).first()
+        if order:
+            return format_html('<a href="{}">Заказ #{}</a>',
+                               f'/admin/coffee/order/{order.id}/change/',
+                               order.id)
         return "-"
 
-    total_amount_display.short_description = "Сумма"
-
-    def calculate_total(self, request, queryset):
-        for order in queryset:
-            order.calculate_total()
-        self.message_user(request, "Суммы пересчитаны")
-
-    calculate_total.short_description = "Пересчитать сумму"
+    current_order_link.short_description = 'Текущий заказ'
 
 
-@admin.register(OrderServices)
-class OrderServiceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'order', 'service', 'quantity', 'is_main')
-    list_filter = ('is_main', 'service')
-    raw_id_fields = ('order', 'service')
-    search_fields = ('order__id', 'service__name')
+# Отдельная регистрация OrderItem если нужен отдельный доступ
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ('order_link', 'product', 'quantity', 'guest_name', 'price', 'total_price')
+    list_filter = ('product',)
+    search_fields = ('order__id', 'guest_name')
 
-    autocomplete_fields = ['order', 'service']
+    def order_link(self, obj):
+        return format_html('<a href="{}">Заказ #{}</a>',
+                           f'/admin/coffee/order/{obj.order.id}/change/',
+                           obj.order.id)
 
-    fieldsets = (
-        (None, {
-            'fields': ('order', 'service', 'quantity', 'is_main', 'order_number')
-        }),
-    )
+    order_link.short_description = 'Заказ'
+
+    def total_price(self, obj):
+        return obj.price * obj.quantity
+
+    total_price.short_description = 'Сумма'

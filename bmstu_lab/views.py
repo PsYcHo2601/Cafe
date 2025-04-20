@@ -1,139 +1,160 @@
-from datetime import datetime
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404, redirect
+from django.views import View
+from django.views.generic import ListView, CreateView, UpdateView, DetailView
 
-from django.db.models import Q
-
-from bmstu_lab.models import Services, Dish, OrderServices, AuthUser  # Убедись, что имя модели совпадает!
-
-MINIO_URL = "http://localhost:9000/cafe"
-
-
-def get_dish():
-    # todo будет доделано до нормального вида
-    user_id = AuthUser.objects.all().order_by('login').first().id
-    if Dish.objects.filter(creator_id=user_id, status=Dish.DRAFT).exists():
-        dish = Dish.objects.get(creator_id=user_id, status=Dish.DRAFT)
-    else:
-        dish = Dish(creator_id=user_id, created_at=datetime.now(), status=Dish.DRAFT)
-        dish.save()
-
-    return dish
+from .forms import OrderCreateForm, OrderItemFormSet
+from .models import Product, Order, OrderItem, Table
 
 
-def coffee_list(request):
-    """
-    Перечень кофе (+поиск по наименованию, фильтрация по цене и дате)
-    """
-    search_query = request.GET.get("search", "").strip().lower()
-    filter_by = request.GET.get("filter_by", "all")
+class ProductListView(LoginRequiredMixin, ListView):
+    model = Product
+    template_name = 'product_list.html'
+    context_object_name = 'products'
 
-    flt = Q()
-    dish = get_dish()
-    orders = OrderServices.objects.filter(order_id=dish.id)
-
-    if search_query:
-        flt &= Q(name__icontains=search_query)
-
-    filtered_coffee = Services.objects.filter(flt)
-
-    if filter_by == "price":
-        filtered_coffee = filtered_coffee.order_by('price')
-    elif filter_by == "date":
-        filtered_coffee = filtered_coffee.order_by('-date')
-
-    basket_count = orders.count()
-
-    return render(request, "coffee_list.html",
-                  {"coffee": filtered_coffee, "basket_count": basket_count, "search_query": search_query,
-                   "filtered_by": filter_by})
+    def get_queryset(self):
+        return Product.objects.filter(is_available=True)
 
 
-def coffee_detail(request, coffee_id):
-    """
-    Информация о кофе
-    :param coffee_id: идентификатор товара (кофе)
-    """
-    item = Services.objects.get(id=coffee_id)
-    return render(request, "coffee_detail.html", {"coffee": item})
+class TableListView(LoginRequiredMixin, ListView):
+    model = Table
+    template_name = 'table_list.html'
+    context_object_name = 'tables'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Добавляем информацию о текущих заказах для каждого столика
+        tables = context['tables']
+        active_orders = Order.objects.filter(status__in=['new', 'preparing', 'ready'])
+        table_order_map = {order.table_id: order for order in active_orders}
+
+        for table in tables:
+            table.current_order = table_order_map.get(table.id)
+
+        return context
 
 
-def dish_detail(request):
-    """
-    Содержимое корзины
-    :return: перечень товаров добавленных в корзину
-    """
-    dish = get_dish()
-    dish_services = OrderServices.objects.filter(order_id=dish.id).select_related('service')
+class OrderCreateView(LoginRequiredMixin, CreateView):
+    model = Order
+    form_class = OrderCreateForm
+    template_name = 'order_create.html'
 
-    result = []
-    total_sum = 0
-    for dish_service in dish_services:
-        result.append(dish_service.service)
-        total_sum += dish_service.service.price
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        table_id = self.kwargs.get('table_id')
+        table = get_object_or_404(Table, id=table_id)
 
-    # Страница корзины
-    return render(request, "basket_detail.html", {"basket": result, "total_sum": total_sum})
+        if self.request.POST:
+            context['formset'] = OrderItemFormSet(self.request.POST)
+        else:
+            context['formset'] = OrderItemFormSet(queryset=OrderItem.objects.none())
 
+        context['table'] = table
+        context['products'] = Product.objects.filter(is_available=True)
+        return context
 
-def add_to_dish(request, product_id):
-    """
-    Добавление в корзину
-    :param product_id: идентификатор товара (кофе)
-    """
-    # Добавление товара в корзину через отдельный URL
-    if request.method == "POST":
-        product = Services.objects.filter(id=product_id).first()
-        if product:
-            dish = get_dish()
-            OrderServices.objects.create(order_id=dish.id, service_id=product.id)
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+        table_id = self.kwargs.get('table_id')
+        table = get_object_or_404(Table, id=table_id)
 
-            # Возвращаем пользователя обратно на страницу списка товаров
-    return coffee_list(request)
+        # Проверяем, что для столика нет активного заказа
+        if Order.objects.filter(table=table, status__in=['new', 'preparing', 'ready']).exists():
+            messages.error(self.request, 'Для этого столика уже есть активный заказ')
+            return redirect('table_list')
 
+        if formset.is_valid():
+            order = form.save(commit=False)
+            order.waiter = self.request.user
+            order.table = table
+            order.save()
 
-def update_coffee_guest_in_dish(request, order_service_id, guest_name):
-    OrderServices.objects.filter(id=order_service_id).update(guest_name=guest_name)
+            # Сохраняем позиции заказа
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.order = order
+                instance.price = instance.product.price  # Сохраняем текущую цену
+                instance.save()
 
-    return dish_detail(request)
+            messages.success(self.request, 'Заказ успешно создан')
+            return redirect('order_detail', pk=order.pk)
 
-
-def update_dish_table(request, table_number):
-    dish = get_dish()
-
-    dish.table_number = table_number
-    dish.save()
-
-    return dish_detail(request)
-
-
-def delete_from_dish(request, product_id):
-    """
-    Удаление из корзины
-    :param product_id: идентификатор товара (кофе)
-    """
-    dish = get_dish()
-    OrderServices.objects.filter(order_id=dish.id, service_id=product_id).delete()
-
-    return dish_detail(request)
+        return self.render_to_response(self.get_context_data(form=form))
 
 
-def set_dish_to_formed(request):
-    dish = get_dish()
-    dish.status = dish.FORMED
+class OrderDetailView(LoginRequiredMixin, DetailView):
+    model = Order
+    template_name = 'order_detail.html'
+    context_object_name = 'order'
 
-    dish_services = OrderServices.objects.filter(order_id=dish.id).select_related('service')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order = self.object
+        context['items'] = order.items.all().order_by('item_number')
 
-    total_sum = 0
-    for dish_service in dish_services:
-        total_sum += dish_service.service.price
+        # Группировка по гостям для отображения
+        guests = {}
+        for item in context['items']:
+            guest_name = item.guest_name or 'Общий заказ'
+            if guest_name not in guests:
+                guests[guest_name] = []
+            guests[guest_name].append(item)
 
-    dish.total_sum = total_sum
-    dish.save()
-
-    return dish_detail(request)
+        context['grouped_items'] = guests
+        return context
 
 
-from django.shortcuts import render
+class OrderUpdateView(LoginRequiredMixin, UpdateView):
+    model = Order
+    form_class = OrderCreateForm
+    template_name = 'order_update.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order = self.object
+
+        if self.request.POST:
+            context['formset'] = OrderItemFormSet(self.request.POST, instance=order)
+        else:
+            context['formset'] = OrderItemFormSet(instance=order)
+
+        context['products'] = Product.objects.filter(is_available=True)
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+
+        if formset.is_valid():
+            self.object = form.save()
+            instances = formset.save(commit=False)
+
+            for instance in instances:
+                instance.order = self.object
+                if not instance.price:  # Если цена не установлена (новый товар)
+                    instance.price = instance.product.price
+                instance.save()
+
+            # Удаление отмеченных позиций
+            for obj in formset.deleted_objects:
+                obj.delete()
+
+            messages.success(self.request, 'Заказ успешно обновлен')
+            return redirect('order_detail', pk=self.object.pk)
+
+        return self.render_to_response(self.get_context_data(form=form))
 
 
-def home(request):
-    return render(request, "base.html", {"coffee": Services.objects.all()})  # Отображает base.htmllter(id=product
+class OrderStatusUpdateView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        order = get_object_or_404(Order, pk=kwargs['pk'])
+        new_status = request.POST.get('status')
+
+        if new_status in dict(Order.STATUS_CHOICES).keys():
+            order.status = new_status
+            order.save()
+            messages.success(request, f'Статус заказа изменен на "{order.get_status_display()}"')
+
+        return redirect('order_detail', pk=order.pk)

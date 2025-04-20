@@ -3,25 +3,30 @@
     padding: 0;
     box-sizing: border-box;
 }
-h1,h2,h3,p,a {
+
+h1, h2, h3, p, a {
     font-family: "Aboreto", system-ui;
     font-weight: 400;
     color: #363751;
 }
+
 h1 {
     font-size: 26px;
     color: #363751;
     margin-left: 10px;
 }
+
 body {
     background-color: #f9f9f9;
 }
+
 .home {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
+
 .header {
     width: 100%;
     background-color: #f3f4f6;
@@ -31,24 +36,29 @@ body {
     padding: 15px 50px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
+
 .logo_group {
     display: flex;
     align-items: center;
 }
+
 .logo {
     width: 60px;
     height: 60px;
 }
+
 .name {
     font-size: 28px;
     font-weight: bold;
     color: #363751;
     margin-left: 10px;
 }
+
 .search_group {
     display: flex;
     align-items: center;
 }
+
 .search {
     width: 250px;
     height: 40px;
@@ -58,16 +68,19 @@ body {
     border: 1px solid #ccc;
     outline: none;
 }
+
 .search_icon {
     width: 40px;
     height: 40px;
     margin-left: -40px;
     cursor: pointer;
 }
+
 .links_group {
     display: flex;
     gap: 30px;
 }
+
 .main_links {
     text-decoration: none;
     font-size: 22px;
@@ -75,9 +88,11 @@ body {
     font-weight: bold;
     transition: 0.3s;
 }
+
 .main_links:hover {
     color: #C41D24;
 }
+
 .content {
     display: flex;
     flex-wrap: wrap;
@@ -85,6 +100,7 @@ body {
     padding: 30px;
     gap: 30px;
 }
+
 .card {
     width: 320px;
     background: white;
@@ -127,15 +143,18 @@ footer {
     text-decoration: none;
     color: inherit;
 }
+
 .card-link:hover .card {
     transform: scale(1.05);
     transition: 0.3s;
 }
+
 .root {
     list-style-type: none;
     position: relative;
     display: inline-block;
 }
+
 .dropdown {
     background-color: #f3f4f6;
     list-style-type: none;
@@ -147,12 +166,15 @@ footer {
     border-radius: 15px;
     padding: 10px;
 }
+
 .root:hover .dropdown {
     display: block;
 }
+
 .basketOptional {
     list-style-type: none;
 }
+
 .basketPosition {
     position: relative;
     border: 2px solid #f3f4f6;
@@ -162,6 +184,7 @@ footer {
     margin: 15px;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
 }
+
 .deleteButton {
     position: absolute;
     right: 0;
@@ -171,18 +194,22 @@ footer {
     border-radius: 15px;
     cursor: pointer;
 }
+
 .cardName {
     text-decoration: none;
     color: #363751;
 }
+
 .cardName:hover {
     border-bottom: 2px solid #363751;
 }
+
 .cardText {
-    padding-top:6px;
+    padding-top: 6px;
     color: #363751;
     font-size: 14px;
 }
+
 aside {
     border: 3px solid #f3f4f6;
     background: #f3f4f6;
@@ -191,6 +218,7 @@ aside {
     margin: 5px 35px;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
 }
+
 .submitButton {
     margin-top: 7px;
     width: 100%;
@@ -203,9 +231,11 @@ aside {
     cursor: pointer;
     transition: 0.3s;
 }
+
 .submitButton:hover {
     color: darkred;
 }
+
 .productDetail {
     border: 2px solid #f3f4f6;
     border-radius: 20px;
@@ -214,4 +244,148 @@ aside {
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
     margin: 10px 50px;
 
+}
+
+/* Общие стили */
+.page-title {
+    font-family: 'Aboreto', cursive;
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Карточки столиков */
+.tables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.table-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.table-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.table-card.occupied {
+    border-left: 5px solid #ff6b6b;
+}
+
+.table-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    margin: 10px 0;
+}
+
+.status-badge.new {
+    background-color: #ffe66d;
+}
+
+.status-badge.preparing {
+    background-color: #4ecdc4;
+}
+
+.status-badge.ready {
+    background-color: #1dd1a1;
+}
+
+.status-badge.completed {
+    background-color: #576574;
+    color: white;
+}
+
+.status-badge.free {
+    background-color: #c8d6e5;
+}
+
+/* Формы */
+.form-field {
+    margin-bottom: 15px;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-field input,
+.form-field select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Детали заказа */
+.guest-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #ddd;
+}
+
+.items-list {
+    list-style: none;
+    padding: 0;
+}
+
+.items-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.order-totals {
+    text-align: right;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #333;
+}
+
+.total-amount {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+/* Кнопки */
+button, .edit-btn, .update-status-btn {
+    background-color: #6c5ce7;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover, .edit-btn:hover, .update-status-btn:hover {
+    background-color: #5649c0;
+}
+
+.status-select {
+    padding: 9px;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.order-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
 }

@@ -9,18 +9,32 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Aboreto&family=Gidole&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+        {% block extra_css %}{% endblock %}  <!-- Для дополнительных CSS -->
     </head>
     <body>
         <div class="home">
             <!-- Хедер -->
             <div class="header">
                 <div class="logo_group">
-                    <a href="/"><img class="logo" src="http://127.0.0.1:9000/cafe/main_image.png" alt="Vlados-coffee-image"></a>
+                    <a href="{% url 'coffee:table_list' %}"><img class="logo" src="http://127.0.0.1:9000/cafe/main_image.png" alt="Vlados-coffee-image"></a>
                     <p class="name">Vlado`s coffee</p>
                 </div>
                 <!-- Меню навигации -->
                 <div class="links_group">
-                    <a href="{% url 'basket_detail' %}" class="main_links"><h1>Заказ</h1></a>
+                    <a href="{% url 'coffee:table_list' %}" class="main_links"><h1>Столики</h1></a>
+                    <a href="{% url 'coffee:product_list' %}" class="main_links"><h1>Меню</h1></a>
+
+                    <!-- Уведомления -->
+                    {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
                     <ul>
                         <li class="root">
                             <h1>Контакты</h1>
@@ -38,6 +52,16 @@
             <div class="content">
                 {% block content %}{% endblock %}
             </div>
-        </div> 
+
+            <!-- Футер -->
+            <footer class="footer">
+                <p>© 2023 Vlado`s Coffee. Все права защищены.</p>
+                {% if user.is_authenticated %}
+                <p>Вы вошли как: {{ user.username }} | <a href="{% url 'admin:logout' %}">Выйти</a></p>
+                {% endif %}
+            </footer>
+        </div>
+
+        {% block extra_js %}{% endblock %}  <!-- Для дополнительных JS -->
     </body>
 </html>

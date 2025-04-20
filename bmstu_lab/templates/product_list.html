@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Меню | Vlado`s Coffee{% endblock %}
+
+{% block content %}
+<div class="products-container">
+    <h1 class="page-title">Наше меню</h1>
+    
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-image">
+                <!-- Замените на реальные изображения ваших продуктов -->
+                <img src="{% static 'images/coffee-placeholder.jpg' %}" alt="{{ product.name }}">
+            </div>
+            <div class="product-info">
+                <h2>{{ product.name }}</h2>
+                <p class="product-description">{{ product.description|default:"Описание отсутствует" }}</p>
+                <div class="product-footer">
+                    <span class="product-price">{{ product.price }} ₽</span>
+                    {% if user.is_authenticated %}
+                    <button class="add-to-order" data-product-id="{{ product.id }}">
+                        Добавить в заказ
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-products">
+            <p>К сожалению, сейчас все кофе закончились</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .products-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+    
+    .product-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .product-image img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .product-info {
+        padding: 15px;
+    }
+    
+    .product-info h2 {
+        font-family: 'Aboreto', cursive;
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    
+    .product-description {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 15px;
+        min-height: 40px;
+    }
+    
+    .product-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .product-price {
+        font-weight: bold;
+        font-size: 1.2em;
+        color: #6c5ce7;
+    }
+    
+    .add-to-order {
+        background-color: #6c5ce7;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .add-to-order:hover {
+        background-color: #5649c0;
+    }
+    
+    .no-products {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 50px;
+        font-size: 1.2em;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработка кнопок "Добавить в заказ"
+    document.querySelectorAll('.add-to-order').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            // Здесь можно добавить логику добавления в заказ
+            alert(`Продукт ${productId} будет добавлен в заказ (реализуйте эту логику)`);
+        });
+    });
+});
+</script>
+{% endblock %}

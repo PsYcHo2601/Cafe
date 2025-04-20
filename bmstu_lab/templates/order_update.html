@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Редактирование заказа #{{ order.id }} | Vlado`s Coffee{% endblock %}
+
+{% block extra_css %}
+<style>
+    .order-update-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .order-header {
+        margin-bottom: 30px;
+    }
+    
+    .order-header h1 {
+        font-family: 'Aboreto', cursive;
+        color: #333;
+    }
+    
+    .order-meta {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    
+    .formset-container {
+        margin-bottom: 30px;
+    }
+    
+    .formset-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 15px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        align-items: flex-end;
+    }
+    
+    .form-field {
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .form-field label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #555;
+    }
+    
+    .form-field input,
+    .form-field select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .delete-field {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .delete-field label {
+        margin-left: 5px;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary {
+        background-color: #6c5ce7;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #5649c0;
+    }
+    
+    .btn-secondary {
+        background-color: #f8f9fa;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #e9ecef;
+    }
+    
+    .add-row-btn {
+        background-color: transparent;
+        color: #6c5ce7;
+        border: 1px dashed #6c5ce7;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .add-row-btn:hover {
+        background-color: #f0eefc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="order-update-container">
+    <div class="order-header">
+        <h1>Редактирование заказа #{{ order.id }}</h1>
+        <div class="order-meta">
+            <p><strong>Столик:</strong> №{{ order.table.number }}</p>
+            <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+            <p><strong>Официант:</strong> {{ order.waiter.username }}</p>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        {{ form.non_field_errors }}
+        
+        <div class="formset-container">
+            {{ formset.management_form }}
+            
+            {% for form in formset %}
+            <div class="formset-row">
+                {{ form.id }}
+                <div class="form-field">
+                    {{ form.product.label_tag }}
+                    {{ form.product }}
+                </div>
+                <div class="form-field">
+                    {{ form.quantity.label_tag }}
+                    {{ form.quantity }}
+                </div>
+                <div class="form-field">
+                    {{ form.guest_name.label_tag }}
+                    {{ form.guest_name }}
+                </div>
+                <div class="form-field delete-field">
+                    {{ form.DELETE.label_tag }}
+                    {{ form.DELETE }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <button type="button" class="add-row-btn" id="add-form">+ Добавить позицию</button>
+        
+        <div class="form-actions">
+            <a href="{% url 'coffee:order_detail' pk=order.pk %}" class="btn btn-secondary">Отмена</a>
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Добавление новой строки в formset
+    document.getElementById('add-form').addEventListener('click', function() {
+        const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+        const formNum = parseInt(totalForms.value);
+        const formsetContainer = document.querySelector('.formset-container');
+        const emptyForm = document.querySelector('.formset-row').cloneNode(true);
+        
+        // Обновляем атрибуты name и id
+        const regex = new RegExp('form-(\\d+)', 'g');
+        emptyForm.innerHTML = emptyForm.innerHTML.replace(regex, `form-${formNum}`);
+        
+        // Очищаем значения
+        emptyForm.querySelectorAll('input, select').forEach(el => {
+            if (el.name.includes('product') || el.name.includes('quantity') || 
+                el.name.includes('guest_name')) {
+                el.value = '';
+            }
+            if (el.name.includes('DELETE')) {
+                el.checked = false;
+            }
+        });
+        
+        // Добавляем новую строку перед кнопками действий
+        formsetContainer.insertBefore(emptyForm, document.querySelector('.form-actions').previousElementSibling);
+        totalForms.value = formNum + 1;
+    });
+});
+</script>
+{% endblock %}
