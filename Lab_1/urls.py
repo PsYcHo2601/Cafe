@@ -1,4 +1,6 @@
 from django.urls import path
+
+from Lab_1 import settings
 from bmstu_lab.views import (
     ServicesListView,
     ServicesDetailView,
@@ -23,8 +25,3 @@ urlpatterns = [
     path('dishes/<uuid:pk>/form/', FormDishView.as_view(), name='form-dish'),
     path('dishes/<uuid:pk>/complete/', CompleteDishView.as_view(), name='complete-dish'),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

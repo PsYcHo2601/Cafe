@@ -1,3 +1,4 @@
+from django.db import models
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -27,7 +28,7 @@ class ServicesListView(APIView):
 
         # Получаем черновик заявки пользователя
         user_draft = Dish.objects.filter(
-            creator=request.user,
+            creator_id=request.user.id,
             status=Dish.DRAFT
         ).first()
 
@@ -37,13 +38,12 @@ class ServicesListView(APIView):
                 in_draft_count=Count(
                     'orderservices',
                     filter=models.Q(orderservices__order=user_draft)
-                )
-            else:
+                ))
+        else:
             services = services.annotate(in_draft_count=models.Value(0, output_field=models.IntegerField()))
 
-            serializer = ServicesListSerializer(services, many=True, context={
-                'draft_id': user_draft.id if user_draft else None
-            })
+        serializer = ServicesListSerializer(services, many=True, context={
+                'draft_id': user_draft.id if user_draft else None    })
         return Response(serializer.data)
 
     def post(self, request):
@@ -71,14 +71,6 @@ class ServicesDetailView(APIView):
     def delete(self, request, pk):
         service = get_object_or_404(Services, pk=pk)
 
-        # Удаление изображения из Minio
-        if service.image_url:
-            try:
-                bucket_name, object_name = parse_minio_url(service.image_url)
-                minio_client.remove_object(bucket_name, object_name)
-            except Exception as e:
-                pass  # Логируем ошибку, но продолжаем удаление
-
         service.is_active = False
         service.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -99,24 +91,6 @@ class ServicesImageUploadView(APIView):
         object_name = f"services/{pk}/{uuid.uuid4()}.{file_extension}"
 
         try:
-            # Удаляем старое изображение если есть
-            if service.image_url:
-                bucket_name, old_object_name = parse_minio_url(service.image_url)
-                minio_client.remove_object(bucket_name, old_object_name)
-
-            # Загружаем новое изображение
-            minio_client.put_object(
-                settings.MINIO_BUCKET,
-                object_name,
-                io.BytesIO(image_file.read()),
-                length=image_file.size,
-                content_type=image_file.content_type
-            )
-
-            # Обновляем URL изображения в сервисе
-            service.image_url = f"{settings.MINIO_PUBLIC_URL}/{settings.MINIO_BUCKET}/{object_name}"
-            service.save()
-
             return Response({"image_url": service.image_url}, status=status.HTTP_200_OK)
 
         except Exception as e:

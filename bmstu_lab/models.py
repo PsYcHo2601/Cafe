@@ -80,7 +80,7 @@ class OrderServices(models.Model):
     )
     is_main = models.BooleanField(default=False, verbose_name="Основная услуга")
     order_number = models.PositiveIntegerField(verbose_name="Порядковый номер", default=1)
-    guest_name = models.CharField(verbose_name='Имя гостя', max_length=255)
+    guest_name = models.CharField(verbose_name='Имя гостя', default='default', max_length=255)
 
     def __str__(self):
         return f"{self.service.name} в заявке #{self.order.id}"
@@ -98,7 +98,7 @@ class Services(models.Model):
     is_active = models.BooleanField(default=True, verbose_name="Активна")
     image_url = models.URLField(max_length=255, blank=True, null=True, verbose_name="URL изображения")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
-    date = models.DateField(default=datetime.date.today(), verbose_name='Дата')
+    date = models.DateField(default=datetime.date, verbose_name='Дата')
 
     def __str__(self):
         return self.name
