@@ -17,13 +17,13 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'is_available', 'image_preview')
+    list_display = ('name', 'price', 'image_preview')
     readonly_fields = ('image_preview',)
 
     def image_preview(self, obj):
         return format_html(
             '<img src="{}" style="max-height: 100px; max-width: 100px;" />',
-            obj.image_url
+            obj.image_or_default
         )
 
     image_preview.short_description = "Превью"

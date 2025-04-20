@@ -1,4 +1,3 @@
-<!-- templates/order_detail.html -->
 {% for guest, items in grouped_items.items %}
 <div class="guest-section">
     <h3>{% if guest == 'Общий заказ' %}{{ guest }}{% else %}Для {{ guest }}{% endif %}</h3>
@@ -7,13 +6,16 @@
         {% for item in items %}
         <li>
             <div class="item-image">
-                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}">
+                <img src="{{ item.product.image_or_default }}"
+                     alt="{{ item.product.name }}"
+                     onerror="this.src='{% static 'images/coffee-placeholder.jpg' %}'">
             </div>
             <div class="item-details">
                 <span class="item-number">{{ item.item_number }}.</span>
                 <span class="item-name">{{ item.product.name }}</span>
                 <span class="item-quantity">×{{ item.quantity }}</span>
                 <span class="item-price">{{ item.price }} ₽</span>
+                <span class="item-total">{{ item.total_price }} ₽</span>
             </div>
         </li>
         {% endfor %}

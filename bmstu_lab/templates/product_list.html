@@ -1,4 +1,3 @@
-<!-- templates/product_list.html -->
 {% extends "base.html" %}
 {% load static %}
 
@@ -10,15 +9,26 @@
         {% for product in products %}
         <div class="product-card">
             <div class="product-image">
-                <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                <img src="{{ product.image_or_default }}"
+                     alt="{{ product.name }}"
+                     onerror="this.src='{% static 'images/coffee-placeholder.jpg' %}'">
             </div>
             <div class="product-info">
                 <h2>{{ product.name }}</h2>
                 <p class="product-description">{{ product.description|default:"Описание отсутствует" }}</p>
                 <div class="product-footer">
                     <span class="product-price">{{ product.price }} ₽</span>
+                    {% if user.is_authenticated %}
+                    <button class="add-to-order" data-product-id="{{ product.id }}">
+                        Добавить в заказ
+                    </button>
+                    {% endif %}
                 </div>
             </div>
+        </div>
+        {% empty %}
+        <div class="no-products">
+            <p>К сожалению, сейчас все кофе закончились</p>
         </div>
         {% endfor %}
     </div>

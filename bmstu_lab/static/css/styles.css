@@ -272,7 +272,7 @@ aside {
 
 .table-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .table-card.occupied {
@@ -422,4 +422,25 @@ button:hover, .edit-btn:hover, .update-status-btn:hover {
 .items-list li {
     display: flex;
     align-items: center;
+}
+/* Обеспечиваем корректное отображение внешних изображений */
+.product-image img,
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: #f5f5f5; /* Фон на случай прозрачных изображений */
+    border-radius: 4px;
+}
+
+/* Загрузка изображений */
+.img-loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
