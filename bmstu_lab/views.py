@@ -1,8 +1,21 @@
-from datetime import datetime
-
-from django.db.models import Q
-
-from bmstu_lab.models import Services, Dish, OrderServices, AuthUser  # Убедись, что имя модели совпадает!
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+from django.db.models import Count
+from django.utils import timezone
+from .models import Dish, Services, OrderServices
+from .serializers import (
+    ServicesSerializer,
+    DishSerializer,
+    CreateDishSerializer,
+    UpdateDishStatusSerializer,
+    ServicesListSerializer,
+    DishListSerializer
+)
+from django.conf import settings
+import uuid
+import io
 
 MINIO_URL = "http://localhost:9000/cafe"
 
