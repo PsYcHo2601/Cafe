@@ -35,3 +35,56 @@
         </div>
     </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработка кнопок "Добавить в заказ"
+    document.querySelectorAll('.add-to-order').forEach(button => {
+        button.addEventListener('click', async function() {
+            const productId = this.dataset.productId;
+            const tableId = getCurrentTableId(); // Нужно определить текущий столик
+
+            try {
+                const response = await fetch(`/api/add-to-order/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        table_id: tableId
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    updateOrderPreview(result.order_id);
+                } else {
+                    alert(result.message || 'Ошибка при добавлении в заказ');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка');
+            }
+        });
+    });
+
+    function getCurrentTableId() {
+        // Получаем ID столика из URL или cookie
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('table_id') || localStorage.getItem('current_table');
+    }
+
+    function updateOrderPreview(orderId) {
+        // Обновляем мини-корзину
+        fetch(`/api/order-preview/${orderId}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('order-preview').innerHTML = data.html;
+            });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,11 @@
+<div class="order-preview">
+    <h3>Ваш заказ (№{{ object.id }})</h3>
+    <ul>
+        {% for item in object.items.all %}
+        <li>{{ item.product.name }} × {{ item.quantity }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'coffee:order_detail' pk=object.id %}" class="btn">
+        Перейти к заказу
+    </a>
+</div>
