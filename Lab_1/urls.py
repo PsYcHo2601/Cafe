@@ -21,12 +21,7 @@ from django.conf.urls.static import static
 from django.urls import path
 from django.contrib import admin
 urlpatterns = [
-    path('', views.coffee_list, name='home'),  # ✅ Теперь главная страница доступна
-    path('coffee/', views.coffee_list, name='coffee_list'),
-    path('coffee/<int:coffee_id>/', views.coffee_detail, name='coffee_detail'),
-    path('basket/', views.dish_detail, name='basket_detail'),
-    path('basket/add/<int:product_id>/', views.add_to_dish, name='add_to_basket'),
-    path('basket/delete/<int:product_id>/', views.delete_from_dish, name='delete_from_basket'),
+
     path('admin/', admin.site.urls),
 ]
 
