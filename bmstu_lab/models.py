@@ -1,7 +1,8 @@
 import datetime
 import uuid
 
-from django.contrib.auth.models import AbstractUser, Permission, Group
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AbstractUser, Permission, Group, UserManager, PermissionsMixin
 from django.core.validators import MaxValueValidator
 from django.db import models
 
@@ -65,6 +66,31 @@ class Dish(models.Model):
                 name='unique_draft_per_user'
             )
         ]
+
+
+class NewUserManager(UserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('User must have an email address')
+
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self.db)
+        return user
+
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(("email адрес"), unique=True)
+    password = models.CharField(max_length=50, verbose_name="Пароль")
+    is_staff = models.BooleanField(default=False, verbose_name="Является ли пользователь менеджером?")
+    is_superuser = models.BooleanField(default=False, verbose_name="Является ли пользователь админом?")
+    is_active = models.BooleanField(default=True)  # Обязательное поле!
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = NewUserManager()
 
 
 class OrderServices(models.Model):

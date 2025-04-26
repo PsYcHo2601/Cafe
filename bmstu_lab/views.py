@@ -1,18 +1,21 @@
 from django.db import models
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.decorators import permission_classes, authentication_classes, api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from django.utils import timezone
-from .models import Dish, Services, OrderServices
+from .models import Dish, Services, OrderServices, CustomUser
 from .serializers import (
     ServicesSerializer,
     DishSerializer,
     CreateDishSerializer,
     UpdateDishStatusSerializer,
     ServicesListSerializer,
-    DishListSerializer
+    DishListSerializer, UserSerializer
 )
 from django.conf import settings
 import uuid
@@ -21,7 +24,60 @@ import io
 MINIO_URL = "http://localhost:9000/cafe"
 
 
+from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponse
+from rest_framework.permissions import AllowAny
+from django.views.decorators.csrf import csrf_exempt
+
+@permission_classes([AllowAny])
+@authentication_classes([])
+@csrf_exempt
+@swagger_auto_schema(method='post', request_body=UserSerializer)
+@api_view(['Post'])
+def login_view(request):
+    email = request.POST["email"] # допустим передали username и password
+    password = request.POST["password"]
+    user = authenticate(request, email=email, password=password)
+    if user is not None:
+        login(request, user)
+        return HttpResponse("{'status': 'ok'}")
+    else:
+        return HttpResponse("{'status': 'error', 'error': 'login failed'}")
+
+def logout_view(request):
+    logout(request._request)
+    return Response({'status': 'Success'})
+
+class UserViewSet(viewsets.ModelViewSet):
+    """Класс, описывающий методы работы с пользователями
+    Осуществляет связь с таблицей пользователей в базе данных
+    """
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    model_class = CustomUser
+
+    def create(self, request):
+        """
+        Функция регистрации новых пользователей
+        Если пользователя c указанным в request email ещё нет, в БД будет добавлен новый пользователь.
+        """
+        if self.model_class.objects.filter(email=request.data['email']).exists():
+            return Response({'status': 'Exist'}, status=400)
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            print(serializer.data)
+            self.model_class.objects.create_user(email=serializer.data['email'],
+                                                 password=serializer.data['password'],
+                                                 is_superuser=serializer.data['is_superuser'],
+                                                 is_staff=serializer.data['is_staff'])
+            return Response({'status': 'Success'}, status=200)
+        return Response({'status': 'Error', 'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 class ServicesListView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+
     def get(self, request):
         # Фильтрация услуг
         services = Services.objects.filter(is_active=True)
@@ -43,9 +99,10 @@ class ServicesListView(APIView):
             services = services.annotate(in_draft_count=models.Value(0, output_field=models.IntegerField()))
 
         serializer = ServicesListSerializer(services, many=True, context={
-                'draft_id': user_draft.id if user_draft else None    })
+            'draft_id': user_draft.id if user_draft else None})
         return Response(serializer.data)
 
+    @swagger_auto_schema(request_body=ServicesSerializer)
     def post(self, request):
         serializer = ServicesSerializer(data=request.data)
         if serializer.is_valid():
@@ -55,11 +112,14 @@ class ServicesListView(APIView):
 
 
 class ServicesDetailView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+
     def get(self, request, pk):
         service = get_object_or_404(Services, pk=pk, is_active=True)
         serializer = ServicesSerializer(service)
         return Response(serializer.data)
 
+    @swagger_auto_schema(request_body=ServicesSerializer)
     def put(self, request, pk):
         service = get_object_or_404(Services, pk=pk)
         serializer = ServicesSerializer(service, data=request.data, partial=True)
@@ -68,6 +128,7 @@ class ServicesDetailView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(request_body=ServicesSerializer)
     def delete(self, request, pk):
         service = get_object_or_404(Services, pk=pk)
 
@@ -168,7 +229,14 @@ class DishDetailView(APIView):
     def get(self, request, pk):
         dish = get_object_or_404(Dish, pk=pk)
         serializer = DishSerializer(dish)
-        return Response(serializer.data)
+
+        result = serializer.data
+        for service in result['services']:
+            service['coffee_number'] = service['order_number']
+            del service['order_number']
+            del service['is_main']
+
+        return Response(result)
 
     def put(self, request, pk):
         dish = get_object_or_404(Dish, pk=pk)
@@ -271,3 +339,5 @@ class CompleteDishView(APIView):
         dish.save()
 
         return Response(DishSerializer(dish).data)
+
+

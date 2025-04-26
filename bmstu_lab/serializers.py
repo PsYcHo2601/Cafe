@@ -1,5 +1,7 @@
+from collections import OrderedDict
+
 from rest_framework import serializers
-from .models import Dish, Services, OrderServices
+from .models import Dish, Services, OrderServices, CustomUser
 from django.urls import reverse
 
 
@@ -8,6 +10,21 @@ class ServicesSerializer(serializers.ModelSerializer):
         model = Services
         fields = ['id', 'name', 'description', 'price', 'date', 'is_active']
         read_only_fields = ['is_active']
+
+    def get_fields(self):
+        new_fields = OrderedDict()
+        for name, field in super().get_fields().items():
+            field.required = False
+            new_fields[name] = field
+        return new_fields
+
+
+class UserSerializer(serializers.ModelSerializer):
+    is_staff = serializers.BooleanField(default=False, required=False)
+    is_superuser = serializers.BooleanField(default=False, required=False)
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'password', 'is_staff', 'is_superuser']
 
 
 class ServicesListSerializer(ServicesSerializer):
@@ -73,7 +90,7 @@ class DishListSerializer(serializers.ModelSerializer):
         ]
 
     def get_services_count(self, obj):
-        return obj.orderservices.count()
+        return OrderServices.objects.filter(order_id=obj.id).count()
 
 
 class CreateDishSerializer(serializers.ModelSerializer):

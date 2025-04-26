@@ -1,0 +1,1 @@
+default_app_config = 'bmstu_lab.apps.BmstuLabConfig'
