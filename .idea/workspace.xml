@@ -4,22 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dbb65c11-47b2-48db-a108-028847eda0df" name="Changes" comment="ПИШЕМ ВЬЮХИ">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Changes.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Changes.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_04_2025_22_29_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_04_2025_22_29__Changes_.xml" beforeDir="false" />
+    <list default="true" id="dbb65c11-47b2-48db-a108-028847eda0df" name="Changes" comment="Потихоньку делаем">
+      <change afterPath="$PROJECT_DIR$/bmstu_lab/permissions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lab_1/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lab_1/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lab_1/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lab_1/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/migrations/0002_authuser_product_services_orders_orderservices.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/migrations/0003_alter_orders_options_orders_unique_draft_per_user_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/migrations/0004_delete_product_alter_authuser_options_services_price_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/migrations/0005_services_date.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/migrations/0006_dish_delete_coffee_remove_orders_creator_and_more.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bmstu_lab/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmstu_lab/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -34,6 +24,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -85,7 +76,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "settings.editor.selected.configurable": "advanced.settings",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -159,7 +150,7 @@
       <workItem from="1744111306961" duration="2977000" />
       <workItem from="1744114341433" duration="2330000" />
       <workItem from="1744143626383" duration="7437000" />
-      <workItem from="1745689138253" duration="5651000" />
+      <workItem from="1745689138253" duration="15666000" />
     </task>
     <task id="LOCAL-00001" summary="Tamplate 0.3">
       <option name="closed" value="true" />
@@ -169,7 +160,15 @@
       <option name="project" value="LOCAL" />
       <updated>1742835808143</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Потихоньку делаем">
+      <option name="closed" value="true" />
+      <created>1745698970487</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1745698970487</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -189,7 +188,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Tamplate v0.1" />
     <MESSAGE value="Tamplate 0.3" />
-    <option name="LAST_COMMIT_MESSAGE" value="Tamplate 0.3" />
+    <MESSAGE value="Потихоньку делаем" />
+    <option name="LAST_COMMIT_MESSAGE" value="Потихоньку делаем" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -201,15 +201,88 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
-          <line>232</line>
+          <line>322</line>
           <option name="timeStamp" value="30" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Lab_1/settings.py</url>
-          <line>156</line>
+          <line>162</line>
           <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>127</line>
+          <option name="timeStamp" value="44" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>128</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>130</line>
+          <option name="timeStamp" value="46" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>131</line>
+          <option name="timeStamp" value="47" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>284</line>
+          <option name="timeStamp" value="49" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>285</line>
+          <option name="timeStamp" value="50" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>286</line>
+          <option name="timeStamp" value="52" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>287</line>
+          <option name="timeStamp" value="53" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>288</line>
+          <option name="timeStamp" value="54" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>289</line>
+          <option name="timeStamp" value="55" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>44</line>
+          <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>45</line>
+          <option name="timeStamp" value="57" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+          <line>46</line>
+          <option name="timeStamp" value="58" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="Python.DjangoServer">
+        <watch expression="session_storage.get(session_id).decode()" />
+        <watch expression="CustomUser.objects.get(id=user_name)" />
+        <watch expression="session_storage.scan_iter('*')" language="Python" />
+        <watch expression="r.type(key)" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

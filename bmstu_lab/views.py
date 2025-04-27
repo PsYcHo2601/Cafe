@@ -8,7 +8,8 @@ from rest_framework import status, viewsets
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from django.utils import timezone
-from .models import Dish, Services, OrderServices, CustomUser
+from .models import Dish, Services, OrderServices, CustomUser, AuthUser
+from .permissions import IsAdmin, IsManager
 from .serializers import (
     ServicesSerializer,
     DishSerializer,
@@ -23,11 +24,29 @@ import io
 
 MINIO_URL = "http://localhost:9000/cafe"
 
-
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
+
+import redis
+
+# Connect to our Redis instance
+session_storage = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+
+# создаем инстанс и указываем координаты БД на локальной машине
+r = redis.Redis(
+    host='127.0.0.1',
+    port='6379')
+
+r.set('somekey', '1000-7')  # сохраняем ключ 'somekey' с значением '1000-7!'
+value = r.get('somekey')  # получаем значение по ключу
+
+for key in session_storage.scan_iter('*'):
+    if r.type(key).decode() == 'string':
+        value = r.get(key)
+        print(f"Ключ: {key}, Значение: {value}")
+
 
 @permission_classes([AllowAny])
 @authentication_classes([])
@@ -35,18 +54,25 @@ from django.views.decorators.csrf import csrf_exempt
 @swagger_auto_schema(method='post', request_body=UserSerializer)
 @api_view(['Post'])
 def login_view(request):
-    email = request.POST["email"] # допустим передали username и password
-    password = request.POST["password"]
-    user = authenticate(request, email=email, password=password)
+    username = request.data["email"]
+    password = request.data["password"]
+    user = authenticate(request, email=username, password=password)
     if user is not None:
-        login(request, user)
-        return HttpResponse("{'status': 'ok'}")
+        random_key = uuid.uuid4()
+        session_storage.set(str(random_key), username)
+
+        response = HttpResponse("{'status': 'ok'}")
+        response.set_cookie("session_id", str(random_key))
+
+        return response
     else:
         return HttpResponse("{'status': 'error', 'error': 'login failed'}")
+
 
 def logout_view(request):
     logout(request._request)
     return Response({'status': 'Success'})
+
 
 class UserViewSet(viewsets.ModelViewSet):
     """Класс, описывающий методы работы с пользователями
@@ -54,9 +80,30 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
+
+    def get_permissions(self):
+        if self.action in ['post']:
+            permission_classes = [AllowAny]
+        elif self.action in ['list']:
+            permission_classes = [IsAdmin | IsManager]
+        else:
+            permission_classes = [IsAdmin]
+        return [permission() for permission in permission_classes]
+
+    def method_permission_classes(classes):
+        def decorator(func):
+            def decorated_func(self, *args, **kwargs):
+                self.permission_classes = classes
+                self.check_permissions(self.request)
+                return func(self, *args, **kwargs)
+
+            return decorated_func
+
+        return decorator
+
     model_class = CustomUser
 
-    def create(self, request):
+    def post(self, request):
         """
         Функция регистрации новых пользователей
         Если пользователя c указанным в request email ещё нет, в БД будет добавлен новый пользователь.
@@ -74,11 +121,16 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({'status': 'Error', 'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class ServicesListView(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        session_id = request.COOKIES.get('session_id')
+
+        if not session_id or not session_storage.get(session_id):
+            return Response({'error': 'Invalid session'}, status=401)
+
         # Фильтрация услуг
         services = Services.objects.filter(is_active=True)
 
@@ -111,8 +163,27 @@ class ServicesListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ServicesDetailView(APIView):
+class ServicesDetailView(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_permissions(self):
+        if self.action in ['get']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdmin]
+        return [permission() for permission in permission_classes]
+
+    def method_permission_classes(classes):
+        def decorator(func):
+            def decorated_func(self, *args, **kwargs):
+                self.permission_classes = classes
+                self.check_permissions(self.request)
+                return func(self, *args, **kwargs)
+
+            return decorated_func
+
+        return decorator
 
     def get(self, request, pk):
         service = get_object_or_404(Services, pk=pk, is_active=True)
@@ -202,7 +273,26 @@ class AddToDraftView(APIView):
 
 
 class DishListView(APIView):
+
     def get(self, request):
+        session_id = request.COOKIES.get('session_id')
+
+        if not session_id or not session_storage.get(session_id):
+            return Response({'error': 'Invalid session'}, status=401)
+        user_name = session_storage.get(session_id).decode()
+        user = CustomUser.objects.get(email=user_name)
+
+        if not user.is_staff and not user.is_superuser:
+            return Response({'error': 'Invalid authorization'}, status=401)
+        if user.is_superuser:
+            dishes = Dish.objects.all()
+            serializer = DishListSerializer(dishes, many=True)
+            return Response(serializer.data)
+
+        dishes = Dish.objects.filter(creator_id=AuthUser.objects.get(login='staff').id)
+        serializer = DishListSerializer(dishes, many=True)
+        return Response(serializer.data)
+
         # Фильтрация - исключаем удаленные и черновики
         dishes = Dish.objects.exclude(
             status__in=[Dish.DELETED, Dish.DRAFT]
@@ -305,11 +395,22 @@ class CompleteDishView(APIView):
     def put(self, request, pk):
         dish = get_object_or_404(Dish, pk=pk)
 
-        if not request.user.is_staff:
-            return Response(
-                {"detail": "Только для модераторов"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        session_id = request.COOKIES.get('session_id')
+
+        if not session_id or not session_storage.get(session_id):
+            return Response({'error': 'Invalid session'}, status=401)
+        user_name = session_storage.get(session_id).decode()
+        user = CustomUser.objects.get(email=user_name)
+
+        if not user.is_staff and not user.is_superuser:
+            return Response({'error': 'Invalid authorization'}, status=401)
+        if user.is_superuser:
+            return Response({'status': 'Success'}, status=200)
+
+        return Response(
+            {"detail": "Только для модераторов"},
+            status=status.HTTP_403_FORBIDDEN
+        )
 
         if dish.status != Dish.FORMED:
             return Response(
@@ -339,5 +440,3 @@ class CompleteDishView(APIView):
         dish.save()
 
         return Response(DishSerializer(dish).data)
-
-

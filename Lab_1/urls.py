@@ -1,4 +1,3 @@
-from django.db import router
 from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -29,12 +28,10 @@ schema_view = get_schema_view(
    permission_classes=(permissions.AllowAny,),
 )
 
-router.register(r'user', UserViewSet, basename='user')
-
 urlpatterns = [
     # URLs для услуг (Services)
     path('services/', ServicesListView.as_view(), name='services-list'),
-    path('services/<uuid:pk>/', ServicesDetailView.as_view(), name='services-detail'),
+    path('services/<int:pk>/', ServicesDetailView.as_view({'get': 'get', 'put': 'put', 'delete': 'delete'}), name='services-detail'),
     path('services/<uuid:pk>/image/', ServicesImageUploadView.as_view(), name='services-image-upload'),
     path('services/<uuid:service_id>/add-to-draft/', AddToDraftView.as_view(), name='add-to-draft'),
 
@@ -48,4 +45,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('login',  login_view, name='login'),
     path('logout', logout_view, name='logout'),
+    path('user/', UserViewSet.as_view({'post': 'post'}), name='user')
 ]

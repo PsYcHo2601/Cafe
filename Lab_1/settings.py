@@ -48,8 +48,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ]
+    ],
 }
 
 MIDDLEWARE = [
@@ -98,6 +100,9 @@ WSGI_APPLICATION = 'Lab_1.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = 6379
 
 DATABASES = {
     'default': {
