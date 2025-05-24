@@ -1,0 +1,125 @@
+Index: bmstu_lab/views.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from datetime import datetime\r\n\r\nfrom django.http import Http404\r\nfrom django.shortcuts import render, get_object_or_404\r\nfrom django.db.models import Q\r\nfrom django.shortcuts import render, get_object_or_404, redirect\r\nfrom django.db import connection\r\n\r\nMINIO_URL = \"http://localhost:9000/cafe\"\r\n\r\ncoffee = [\r\n    {\"id\": 1, \"name\": \"американо\", \"price\": 229, \"date\": \"2025-04-10\",\r\n     \"description\": \"Кофе американо.\",\r\n     \"image_url\": \"http://localhost:9000/cafe/americano.png\"},\r\n    {\"id\": 2, \"name\": \"Латте\", \"price\": 299, \"date\": \"2025-04-12\",\r\n     \"description\": \"Кофе латте.\",\r\n     \"image_url\": \"http://localhost:9000/cafe/latte.png\"},\r\n    {\"id\": 3, \"name\": \"Флэт-уайт\", \"price\": 299, \"date\": \"2025-04-15\",\r\n     \"description\": \"Кофе Флэт-уайт.\",\r\n     \"image_url\": \"http://localhost:9000/cafe/flatwhite.png\"},\r\n    {\"id\": 4, \"name\": \"Венский кофе\", \"price\": 349, \"date\": \"2025-04-15\",\r\n     \"description\": \"Венский кофе\",\r\n     \"image_url\": \"http://localhost:9000/cafe/viennesecoffee.png\"},\r\n    {\"id\": 5, \"name\": \"Горячий шоколад\", \"price\": 349, \"date\": \"2025-04-20\",\r\n     \"description\": \"Горячий шоколад.\",\r\n     \"image_url\": \"http://localhost:9000/cafe/hotchokolate.png\"},\r\n    {\"id\": 6, \"name\": \"Капучино\", \"price\": 319, \"date\": \"2025-04-20\",\r\n     \"description\": \"Капучино.\",\r\n     \"image_url\": \"http://localhost:9000/cafe/capuccino.png\"}\r\n]\r\n\r\norders = {'1': {\"id\": 1, \"name\": \"американо\", \"price\": 229, \"date\": \"2025-04-10\",\r\n                \"description\": \"Кофе американо.\",\r\n                \"image_url\": \"http://localhost:9000/cafe/americano.png\"}}\r\n\r\n\r\ndef get_orders():\r\n    return orders\r\n\r\n\r\ndef coffee_list(request):\r\n    \"\"\"\r\n    Перечень кофе (+поиск по наименованию, фильтрация по цене и дате)\r\n    \"\"\"\r\n    search_query = request.GET.get(\"search\", \"\").strip().lower()\r\n    filter_by = request.GET.get(\"filter_by\", \"all\")\r\n\r\n    filtered_coffee = coffee.copy()\r\n\r\n    # Apply search filter\r\n    if search_query:\r\n        filtered_coffee = [item for item in filtered_coffee\r\n                           if search_query in item['name'].lower()]\r\n\r\n    orders_items = orders.keys()\r\n    for item in filtered_coffee:\r\n        item['added_to_orders'] = str(item['id']) in orders_items\r\n\r\n    # Apply sorting\r\n    if filter_by == \"price\":\r\n        filtered_coffee.sort(key=lambda x: x['price'])\r\n    elif filter_by == \"date\":\r\n        filtered_coffee.sort(key=lambda x: x['date'], reverse=True)\r\n\r\n    orders_count = len(orders)\r\n\r\n    return render(request, \"coffee_list.html\",\r\n                  {\"coffee\": filtered_coffee, \"orders_count\": orders_count,\r\n                   \"search_query\": search_query, \"filtered_by\": filter_by})\r\n\r\n\r\ndef coffee_detail(request, coffee_id):\r\n    \"\"\"\r\n    Информация о кофе\r\n    :param coffee_id: идентификатор товара (кофе)\r\n    \"\"\"\r\n    item = next((item for item in coffee if item['id'] == int(coffee_id)), None)\r\n    if not item:\r\n        raise Http404(\"Ошибка. Кофе не найдено.\")\r\n    return render(request, \"coffee_detail.html\", {\"coffee\": item})\r\n\r\n\r\ndef orders_detail(request):\r\n    \"\"\"\r\n    Содержимое корзины\r\n    :return: перечень товаров добавленных в корзину\r\n    \"\"\"\r\n    orders_items = orders.values()\r\n    return render(request, \"orders_detail.html\", {\"orders\": orders_items})\r\n\r\n\r\ndef add_to_orders(request, product_id):\r\n    \"\"\"\r\n    Добавление в корзину\r\n    :param product_id: идентификатор товара (кофе)\r\n    \"\"\"\r\n    if request.method == \"POST\":\r\n        product = next((item for item in coffee if item['id'] == product_id), None)\r\n        if product:\r\n            orders[str(product_id)] = product\r\n    return coffee_list(request)\r\n\r\n\r\ndef delete_from_orders(request, product_id):\r\n    \"\"\"\r\n    Удаление из корзины\r\n    :param product_id: идентификатор товара (кофе)\r\n    \"\"\"\r\n    if str(product_id) in orders.keys():\r\n        del orders[str(product_id)]\r\n    return orders_detail(request)\r\n\r\n\r\ndef home(request):\r\n    return render(request, \"base.html\", {\"coffee\": coffee})\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bmstu_lab/views.py b/bmstu_lab/views.py
+--- a/bmstu_lab/views.py	(revision 27203a5c921c86d013e3150e90194d6791e33bc0)
++++ b/bmstu_lab/views.py	(date 1744574245186)
+@@ -29,16 +29,16 @@
+      "image_url": "http://localhost:9000/cafe/capuccino.png"}
+ ]
+ 
+-orders = {'1': {"id": 1, "name": "американо", "price": 229, "date": "2025-04-10",
+-                "description": "Кофе американо.",
+-                "image_url": "http://localhost:9000/cafe/americano.png"}}
++orders = {'1': [{"id": 1, "name": "американо", "price": 229, "date": "2025-04-10",
++                 "description": "Кофе американо.",
++                 "image_url": "http://localhost:9000/cafe/americano.png"}]}
+ 
+ 
+-def get_orders():
+-    return orders
++def get_orders(order_id = '1'):
++    return orders[order_id]
+ 
+ 
+-def coffee_list(request):
++def coffee_list(request, order_id = '1'):
+     """
+     Перечень кофе (+поиск по наименованию, фильтрация по цене и дате)
+     """
+@@ -52,11 +52,11 @@
+         filtered_coffee = [item for item in filtered_coffee
+                            if search_query in item['name'].lower()]
+ 
+-    orders_items = orders.keys()
++    orders_items = orders[order_id].keys()
+     for item in filtered_coffee:
+-        item['added_to_orders'] = str(item['id']) in orders_items
++        for orders_items:
++            item['added_to_orders'] = str(item['id']) in orders_items
+ 
+-    # Apply sorting
+     if filter_by == "price":
+         filtered_coffee.sort(key=lambda x: x['price'])
+     elif filter_by == "date":
+@@ -80,30 +80,30 @@
+     return render(request, "coffee_detail.html", {"coffee": item})
+ 
+ 
+-def orders_detail(request):
++def orders_detail(request, order_id = '1'):
+     """
+-    Содержимое корзины
++    Содержимое заказа
+     :return: перечень товаров добавленных в корзину
+     """
+-    orders_items = orders.values()
++    orders_items = orders[order_id]
+     return render(request, "orders_detail.html", {"orders": orders_items})
+ 
+ 
+-def add_to_orders(request, product_id):
++def add_to_orders(request, product_id, order_id = '1'):
+     """
+-    Добавление в корзину
++    Добавление в заказ
+     :param product_id: идентификатор товара (кофе)
+     """
+     if request.method == "POST":
+         product = next((item for item in coffee if item['id'] == product_id), None)
+         if product:
+-            orders[str(product_id)] = product
++            orders[order_id] = orders[order_id].append(product)
+     return coffee_list(request)
+ 
+ 
+ def delete_from_orders(request, product_id):
+     """
+-    Удаление из корзины
++    Удаление из заказа
+     :param product_id: идентификатор товара (кофе)
+     """
+     if str(product_id) in orders.keys():
+Index: Lab_1/urls.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\"\"\"\r\nURL configuration for Lab_1 project.\r\n\r\nThe `urlpatterns` list routes URLs to views. For more information please see:\r\n    https://docs.djangoproject.com/en/5.1/topics/http/urls/\r\nExamples:\r\nFunction views\r\n    1. Add an import:  from my_app import views\r\n    2. Add a URL to urlpatterns:  path('', views.home, name='home')\r\nClass-based views\r\n    1. Add an import:  from other_app.views import Home\r\n    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')\r\nIncluding another URLconf\r\n    1. Import the include() function: from django.urls import include, path\r\n    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))\r\n\"\"\"\r\nfrom django.contrib import admin\r\nfrom django.urls import path\r\nfrom bmstu_lab import views\r\n\r\n# test\r\nfrom django.urls import path\r\nfrom bmstu_lab import views\r\nfrom django.conf import settings\r\nfrom django.conf.urls.static import static\r\nfrom django.urls import path\r\nfrom django.contrib import admin\r\n\r\nurlpatterns = [\r\n    path('', views.coffee_list, name='home'),  # ✅ Теперь главная страница доступна\r\n    path('coffee/', views.coffee_list, name='coffee_list'),\r\n    path('coffee/<int:coffee_id>/', views.coffee_detail, name='coffee_detail'),\r\n    path('orders/', views.orders_detail, name='orders_detail'),\r\n    path('orders/add/<int:product_id>/', views.add_to_orders, name='add_to_orders'),\r\n    path('orders/delete/<int:product_id>/', views.delete_from_orders, name='delete_from_orders'),\r\n    path('admin/', admin.site.urls),\r\n]\r\n\r\nif settings.DEBUG:\r\n    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)\r\nif settings.DEBUG:\r\n    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Lab_1/urls.py b/Lab_1/urls.py
+--- a/Lab_1/urls.py	(revision 27203a5c921c86d013e3150e90194d6791e33bc0)
++++ b/Lab_1/urls.py	(date 1744574245212)
+@@ -14,17 +14,13 @@
+     1. Import the include() function: from django.urls import include, path
+     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+ """
+-from django.contrib import admin
++
++from django.conf import settings
++from django.conf.urls.static import static
+ from django.urls import path
+-from bmstu_lab import views
+ 
+ # test
+-from django.urls import path
+ from bmstu_lab import views
+-from django.conf import settings
+-from django.conf.urls.static import static
+-from django.urls import path
+-from django.contrib import admin
+ 
+ urlpatterns = [
+     path('', views.coffee_list, name='home'),  # ✅ Теперь главная страница доступна
+@@ -33,7 +29,6 @@
+     path('orders/', views.orders_detail, name='orders_detail'),
+     path('orders/add/<int:product_id>/', views.add_to_orders, name='add_to_orders'),
+     path('orders/delete/<int:product_id>/', views.delete_from_orders, name='delete_from_orders'),
+-    path('admin/', admin.site.urls),
+ ]
+ 
+ if settings.DEBUG:

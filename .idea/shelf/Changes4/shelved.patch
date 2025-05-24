@@ -1,0 +1,389 @@
+Index: bmstu_lab/views.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from datetime import datetime\r\n\r\nfrom django.db.models import Q\r\n\r\nfrom bmstu_lab.models import Services, Dish, OrderServices, AuthUser  # Убедись, что имя модели совпадает!\r\n\r\nMINIO_URL = \"http://localhost:9000/cafe\"\r\n\r\n\r\nclass ServicesListView(APIView):\r\n    def get(self, request):\r\n        # Фильтрация услуг\r\n        services = Services.objects.filter(is_active=True)\r\n\r\n        # Получаем черновик заявки пользователя\r\n        user_draft = Dish.objects.filter(\r\n            creator=request.user,\r\n            status=Dish.DRAFT\r\n        ).first()\r\n\r\n        # Аннотируем количество услуг в заявке\r\n        if user_draft:\r\n            services = services.annotate(\r\n                in_draft_count=Count(\r\n                    'orderservices',\r\n                    filter=models.Q(orderservices__order=user_draft)\r\n                )\r\n            else:\r\n            services = services.annotate(in_draft_count=models.Value(0, output_field=models.IntegerField()))\r\n\r\n            serializer = ServicesListSerializer(services, many=True, context={\r\n                'draft_id': user_draft.id if user_draft else None\r\n            })\r\n        return Response(serializer.data)\r\n\r\n    def post(self, request):\r\n        serializer = ServicesSerializer(data=request.data)\r\n        if serializer.is_valid():\r\n            serializer.save()\r\n            return Response(serializer.data, status=status.HTTP_201_CREATED)\r\n        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)\r\n\r\n\r\nclass ServicesDetailView(APIView):\r\n    def get(self, request, pk):\r\n        service = get_object_or_404(Services, pk=pk, is_active=True)\r\n        serializer = ServicesSerializer(service)\r\n        return Response(serializer.data)\r\n\r\n    def put(self, request, pk):\r\n        service = get_object_or_404(Services, pk=pk)\r\n        serializer = ServicesSerializer(service, data=request.data, partial=True)\r\n        if serializer.is_valid():\r\n            serializer.save()\r\n            return Response(serializer.data)\r\n        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)\r\n\r\n    def delete(self, request, pk):\r\n        service = get_object_or_404(Services, pk=pk)\r\n\r\n        # Удаление изображения из Minio\r\n        if service.image_url:\r\n            try:\r\n                bucket_name, object_name = parse_minio_url(service.image_url)\r\n                minio_client.remove_object(bucket_name, object_name)\r\n            except Exception as e:\r\n                pass  # Логируем ошибку, но продолжаем удаление\r\n\r\n        service.is_active = False\r\n        service.save()\r\n        return Response(status=status.HTTP_204_NO_CONTENT)\r\n\r\n\r\nclass ServicesImageUploadView(APIView):\r\n    def post(self, request, pk):\r\n        service = get_object_or_404(Services, pk=pk)\r\n\r\n        if 'image' not in request.FILES:\r\n            return Response(\r\n                {\"error\": \"No image provided\"},\r\n                status=status.HTTP_400_BAD_REQUEST\r\n            )\r\n\r\n        image_file = request.FILES['image']\r\n        file_extension = image_file.name.split('.')[-1]\r\n        object_name = f\"services/{pk}/{uuid.uuid4()}.{file_extension}\"\r\n\r\n        try:\r\n            # Удаляем старое изображение если есть\r\n            if service.image_url:\r\n                bucket_name, old_object_name = parse_minio_url(service.image_url)\r\n                minio_client.remove_object(bucket_name, old_object_name)\r\n\r\n            # Загружаем новое изображение\r\n            minio_client.put_object(\r\n                settings.MINIO_BUCKET,\r\n                object_name,\r\n                io.BytesIO(image_file.read()),\r\n                length=image_file.size,\r\n                content_type=image_file.content_type\r\n            )\r\n\r\n            # Обновляем URL изображения в сервисе\r\n            service.image_url = f\"{settings.MINIO_PUBLIC_URL}/{settings.MINIO_BUCKET}/{object_name}\"\r\n            service.save()\r\n\r\n            return Response({\"image_url\": service.image_url}, status=status.HTTP_200_OK)\r\n\r\n        except Exception as e:\r\n            return Response(\r\n                {\"error\": str(e)},\r\n                status=status.HTTP_500_INTERNAL_SERVER_ERROR\r\n            )\r\n\r\n\r\nclass AddToDraftView(APIView):\r\n    def post(self, request, service_id):\r\n        # Находим или создаем черновик\r\n        draft, created = Dish.objects.get_or_create(\r\n            creator=request.user,\r\n            status=Dish.DRAFT,\r\n            defaults={\r\n                'table_number': 0,\r\n                'total_sum': 0\r\n            }\r\n        )\r\n\r\n        service = get_object_or_404(Services, pk=service_id, is_active=True)\r\n\r\n        # Добавляем услугу в заявку\r\n        order_service, created = OrderServices.objects.get_or_create(\r\n            order=draft,\r\n            service=service,\r\n            defaults={\r\n                'guest_name': request.data.get('guest_name', ''),\r\n                'order_number': OrderServices.objects.filter(order=draft).count() + 1\r\n            }\r\n        )\r\n\r\n        if not created:\r\n            return Response(\r\n                {\"detail\": \"Услуга уже в заявке\"},\r\n                status=status.HTTP_400_BAD_REQUEST\r\n            )\r\n\r\n        # Обновляем сумму заявки\r\n        draft.total_sum += service.price\r\n        draft.save()\r\n\r\n        return Response(\r\n            {\"draft_id\": draft.id, \"service_added\": service_id},\r\n            status=status.HTTP_201_CREATED\r\n        )\r\n\r\n\r\nclass DishListView(APIView):\r\n    def get(self, request):\r\n        # Фильтрация - исключаем удаленные и черновики\r\n        dishes = Dish.objects.exclude(\r\n            status__in=[Dish.DELETED, Dish.DRAFT]\r\n        )\r\n\r\n        # Фильтрация по дате формирования\r\n        date_from = request.query_params.get('date_from')\r\n        date_to = request.query_params.get('date_to')\r\n        if date_from and date_to:\r\n            dishes = dishes.filter(\r\n                formed_at__date__range=[date_from, date_to]\r\n            )\r\n\r\n        # Фильтрация по статусу\r\n        status_filter = request.query_params.get('status')\r\n        if status_filter:\r\n            dishes = dishes.filter(status=status_filter)\r\n\r\n        serializer = DishListSerializer(dishes, many=True)\r\n        return Response(serializer.data)\r\n\r\n\r\nclass DishDetailView(APIView):\r\n    def get(self, request, pk):\r\n        dish = get_object_or_404(Dish, pk=pk)\r\n        serializer = DishSerializer(dish)\r\n        return Response(serializer.data)\r\n\r\n    def put(self, request, pk):\r\n        dish = get_object_or_404(Dish, pk=pk)\r\n\r\n        if dish.status != Dish.DRAFT:\r\n            return Response(\r\n                {\"detail\": \"Можно изменять только черновики\"},\r\n                status=status.HTTP_400_BAD_REQUEST\r\n            )\r\n\r\n        serializer = CreateDishSerializer(dish, data=request.data, partial=True)\r\n        if serializer.is_valid():\r\n            serializer.save()\r\n            return Response(serializer.data)\r\n        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)\r\n\r\n    def delete(self, request, pk):\r\n        dish = get_object_or_404(Dish, pk=pk)\r\n\r\n        if dish.status != Dish.DRAFT:\r\n            return Response(\r\n                {\"detail\": \"Можно удалять только черновики\"},\r\n                status=status.HTTP_400_BAD_REQUEST\r\n            )\r\n\r\n        dish.status = Dish.DELETED\r\n        dish.save()\r\n        return Response(status=status.HTTP_204_NO_CONTENT)\r\n\r\n\r\nclass FormDishView(APIView):\r\n    def put(self, request, pk):\r\n        dish = get_object_or_404(Dish, pk=pk, creator=request.user)\r\n\r\n        if dish.status != Dish.DRAFT:\r\n            return Response(\r\n                {\"detail\": \"Можно формировать только черновики\"},\r\n                status=status.HTTP_400_BAD_REQUEST\r\n            )\r\n\r\n        # Проверка обязательных полей\r\n        required_fields = ['table_number']\r\n        for field in required_fields:\r\n            if not getattr(dish, field):\r\n                return Response(\r\n                    {\"detail\": f\"Не заполнено обязательное поле: {field}\"},\r\n                    status=status.HTTP_400_BAD_REQUEST\r\n                )\r\n\r\n        # Проверка что есть хотя бы одна услуга\r\n        if not dish.orderservices.exists():\r\n            return Response(\r\n                {\"detail\": \"Нельзя сформировать пустую заявку\"},\r\n                status=status.HTTP_400_BAD_REQUEST\r\n            )\r\n\r\n        # Обновляем статус и дату формирования\r\n        dish.status = Dish.FORMED\r\n        dish.formed_at = timezone.now()\r\n        dish.save()\r\n\r\n        return Response(DishSerializer(dish).data)\r\n\r\n\r\nclass CompleteDishView(APIView):\r\n    def put(self, request, pk):\r\n        dish = get_object_or_404(Dish, pk=pk)\r\n\r\n        if not request.user.is_staff:\r\n            return Response(\r\n                {\"detail\": \"Только для модераторов\"},\r\n                status=status.HTTP_403_FORBIDDEN\r\n            )\r\n\r\n        if dish.status != Dish.FORMED:\r\n            return Response(\r\n                {\"detail\": \"Можно завершать только сформированные заявки\"},\r\n                status=status.HTTP_400_BAD_REQUEST\r\n            )\r\n\r\n        new_status = request.data.get('status')\r\n        if new_status not in [Dish.COMPLETED, Dish.REJECTED]:\r\n            return Response(\r\n                {\"detail\": \"Недопустимый статус\"},\r\n                status=status.HTTP_400_BAD_REQUEST\r\n            )\r\n\r\n        # Обновляем статус, модератора и дату завершения\r\n        dish.status = new_status\r\n        dish.moderator = request.user\r\n        dish.completed_at = timezone.now()\r\n\r\n        # Дополнительные расчеты при завершении\r\n        if new_status == Dish.COMPLETED:\r\n            # Пример расчета дополнительных полей\r\n            dish.total_sum = sum(\r\n                os.service.price for os in dish.orderservices.all()\r\n            )\r\n\r\n        dish.save()\r\n\r\n        return Response(DishSerializer(dish).data)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bmstu_lab/views.py b/bmstu_lab/views.py
+--- a/bmstu_lab/views.py	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
++++ b/bmstu_lab/views.py	(date 1745175676394)
+@@ -1,8 +1,16 @@
++import uuid
+ from datetime import datetime
+ 
+-from django.db.models import Q
++from django.db.models import Q, Count
++from django.shortcuts import get_object_or_404
++from django.utils import timezone
++from rest_framework import status
++from rest_framework.response import Response
++from rest_framework.views import APIView
+ 
++from Lab_1 import settings
+ from bmstu_lab.models import Services, Dish, OrderServices, AuthUser  # Убедись, что имя модели совпадает!
++from bmstu_lab.serializers import ServicesSerializer, ServicesListSerializer
+ 
+ MINIO_URL = "http://localhost:9000/cafe"
+ 
+@@ -58,14 +66,6 @@
+     def delete(self, request, pk):
+         service = get_object_or_404(Services, pk=pk)
+ 
+-        # Удаление изображения из Minio
+-        if service.image_url:
+-            try:
+-                bucket_name, object_name = parse_minio_url(service.image_url)
+-                minio_client.remove_object(bucket_name, object_name)
+-            except Exception as e:
+-                pass  # Логируем ошибку, но продолжаем удаление
+-
+         service.is_active = False
+         service.save()
+         return Response(status=status.HTTP_204_NO_CONTENT)
+@@ -86,24 +86,6 @@
+         object_name = f"services/{pk}/{uuid.uuid4()}.{file_extension}"
+ 
+         try:
+-            # Удаляем старое изображение если есть
+-            if service.image_url:
+-                bucket_name, old_object_name = parse_minio_url(service.image_url)
+-                minio_client.remove_object(bucket_name, old_object_name)
+-
+-            # Загружаем новое изображение
+-            minio_client.put_object(
+-                settings.MINIO_BUCKET,
+-                object_name,
+-                io.BytesIO(image_file.read()),
+-                length=image_file.size,
+-                content_type=image_file.content_type
+-            )
+-
+-            # Обновляем URL изображения в сервисе
+-            service.image_url = f"{settings.MINIO_PUBLIC_URL}/{settings.MINIO_BUCKET}/{object_name}"
+-            service.save()
+-
+             return Response({"image_url": service.image_url}, status=status.HTTP_200_OK)
+ 
+         except Exception as e:
+Index: bmstu_lab/migrations/0001_initial.py
+===================================================================
+diff --git a/bmstu_lab/migrations/0001_initial.py b/bmstu_lab/migrations/0001_initial.py
+deleted file mode 100644
+--- a/bmstu_lab/migrations/0001_initial.py	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
++++ /dev/null	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
+@@ -1,25 +0,0 @@
+-# Generated by Django 5.1.6 on 2025-03-18 13:56
+-
+-from django.db import migrations, models
+-
+-
+-class Migration(migrations.Migration):
+-
+-    initial = True
+-
+-    dependencies = [
+-    ]
+-
+-    operations = [
+-        migrations.CreateModel(
+-            name='Coffee',
+-            fields=[
+-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+-                ('name', models.CharField(max_length=100)),
+-                ('price', models.DecimalField(decimal_places=2, max_digits=6)),
+-                ('date', models.DateField()),
+-                ('description', models.TextField()),
+-                ('image_url', models.URLField()),
+-            ],
+-        ),
+-    ]
+Index: bmstu_lab/migrations/0002_authuser_product_services_orders_orderservices.py
+===================================================================
+diff --git a/bmstu_lab/migrations/0002_authuser_product_services_orders_orderservices.py b/bmstu_lab/migrations/0002_authuser_product_services_orders_orderservices.py
+deleted file mode 100644
+--- a/bmstu_lab/migrations/0002_authuser_product_services_orders_orderservices.py	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
++++ /dev/null	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
+@@ -1,82 +0,0 @@
+-# Generated by Django 5.1.6 on 2025-03-24 17:55
+-
+-import django.db.models.deletion
+-import uuid
+-from django.db import migrations, models
+-
+-
+-class Migration(migrations.Migration):
+-
+-    dependencies = [
+-        ('bmstu_lab', '0001_initial'),
+-    ]
+-
+-    operations = [
+-        migrations.CreateModel(
+-            name='AuthUser',
+-            fields=[
+-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True)),
+-                ('login', models.CharField(max_length=255, unique=True)),
+-                ('password', models.CharField(max_length=255, unique=True)),
+-                ('is_staff', models.BooleanField(default=False)),
+-            ],
+-        ),
+-        migrations.CreateModel(
+-            name='Product',
+-            fields=[
+-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+-                ('name', models.CharField(max_length=255, verbose_name='Название товара')),
+-                ('price', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Цена')),
+-                ('image', models.ImageField(blank=True, null=True, upload_to='products/', verbose_name='Изображение товара')),
+-            ],
+-            options={
+-                'verbose_name': 'Товар',
+-                'verbose_name_plural': 'Товары',
+-            },
+-        ),
+-        migrations.CreateModel(
+-            name='Services',
+-            fields=[
+-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+-                ('name', models.CharField(max_length=255, verbose_name='Название услуги')),
+-                ('description', models.TextField(blank=True, verbose_name='Описание')),
+-                ('is_active', models.BooleanField(default=True, verbose_name='Активна')),
+-                ('image_url', models.URLField(blank=True, max_length=255, null=True, verbose_name='URL изображения')),
+-            ],
+-            options={
+-                'verbose_name': 'Услуга',
+-                'verbose_name_plural': 'Услуги',
+-                'db_table': 'services',
+-            },
+-        ),
+-        migrations.CreateModel(
+-            name='Orders',
+-            fields=[
+-                ('id', models.UUIDField(db_column='id', default=uuid.uuid4, primary_key=True, serialize=False)),
+-                ('status', models.CharField(choices=[('draft', 'Черновик'), ('deleted', 'Удален'), ('formed', 'Сформирован'), ('completed', 'Завершен'), ('rejected', 'Отклонен')], default='draft', max_length=20, verbose_name='Статус')),
+-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
+-                ('formed_at', models.DateTimeField(blank=True, null=True, verbose_name='Дата формирования')),
+-                ('completed_at', models.DateTimeField(blank=True, null=True, verbose_name='Дата завершения')),
+-                ('total_amount', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True, verbose_name='Общая сумма')),
+-                ('creator', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='created_orders', to='bmstu_lab.authuser', verbose_name='Создатель')),
+-                ('moderator', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='moderated_orders', to='bmstu_lab.authuser', verbose_name='Модератор')),
+-            ],
+-        ),
+-        migrations.CreateModel(
+-            name='OrderServices',
+-            fields=[
+-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+-                ('quantity', models.PositiveIntegerField(default=1, verbose_name='Количество')),
+-                ('is_main', models.BooleanField(default=False, verbose_name='Основная услуга')),
+-                ('order_number', models.PositiveIntegerField(verbose_name='Порядковый номер')),
+-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='bmstu_lab.orders', verbose_name='Заявка')),
+-                ('service', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='bmstu_lab.services', verbose_name='Услуга')),
+-            ],
+-            options={
+-                'verbose_name': 'Услуга в заявке',
+-                'verbose_name_plural': 'Услуги в заявках',
+-                'db_table': 'order_services',
+-                'unique_together': {('order', 'service')},
+-            },
+-        ),
+-    ]
+Index: bmstu_lab/migrations/0003_alter_orders_options_orders_unique_draft_per_user_and_more.py
+===================================================================
+diff --git a/bmstu_lab/migrations/0003_alter_orders_options_orders_unique_draft_per_user_and_more.py b/bmstu_lab/migrations/0003_alter_orders_options_orders_unique_draft_per_user_and_more.py
+deleted file mode 100644
+--- a/bmstu_lab/migrations/0003_alter_orders_options_orders_unique_draft_per_user_and_more.py	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
++++ /dev/null	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
+@@ -1,25 +0,0 @@
+-# Generated by Django 5.1.6 on 2025-03-24 18:20
+-
+-from django.db import migrations, models
+-
+-
+-class Migration(migrations.Migration):
+-
+-    dependencies = [
+-        ('bmstu_lab', '0002_authuser_product_services_orders_orderservices'),
+-    ]
+-
+-    operations = [
+-        migrations.AlterModelOptions(
+-            name='orders',
+-            options={'verbose_name': 'Заявка', 'verbose_name_plural': 'Заявки'},
+-        ),
+-        migrations.AddConstraint(
+-            model_name='orders',
+-            constraint=models.UniqueConstraint(condition=models.Q(('status', 'draft')), fields=('creator',), name='unique_draft_per_user'),
+-        ),
+-        migrations.AlterModelTable(
+-            name='orders',
+-            table='orders',
+-        ),
+-    ]
+Index: bmstu_lab/migrations/0004_delete_product_alter_authuser_options_services_price_and_more.py
+===================================================================
+diff --git a/bmstu_lab/migrations/0004_delete_product_alter_authuser_options_services_price_and_more.py b/bmstu_lab/migrations/0004_delete_product_alter_authuser_options_services_price_and_more.py
+deleted file mode 100644
+--- a/bmstu_lab/migrations/0004_delete_product_alter_authuser_options_services_price_and_more.py	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
++++ /dev/null	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
+@@ -1,31 +0,0 @@
+-# Generated by Django 5.1.6 on 2025-04-10 17:30
+-
+-from django.db import migrations, models
+-
+-
+-class Migration(migrations.Migration):
+-
+-    dependencies = [
+-        ('bmstu_lab', '0003_alter_orders_options_orders_unique_draft_per_user_and_more'),
+-    ]
+-
+-    operations = [
+-        migrations.DeleteModel(
+-            name='Product',
+-        ),
+-        migrations.AlterModelOptions(
+-            name='authuser',
+-            options={'verbose_name': 'Пользователь', 'verbose_name_plural': 'Пользователи'},
+-        ),
+-        migrations.AddField(
+-            model_name='services',
+-            name='price',
+-            field=models.DecimalField(decimal_places=2, default=0, max_digits=10, verbose_name='Цена'),
+-            preserve_default=False,
+-        ),
+-        migrations.AlterField(
+-            model_name='orderservices',
+-            name='order_number',
+-            field=models.PositiveIntegerField(default=1, verbose_name='Порядковый номер'),
+-        ),
+-    ]
+Index: bmstu_lab/migrations/0005_services_date.py
+===================================================================
+diff --git a/bmstu_lab/migrations/0005_services_date.py b/bmstu_lab/migrations/0005_services_date.py
+deleted file mode 100644
+--- a/bmstu_lab/migrations/0005_services_date.py	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
++++ /dev/null	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
+@@ -1,19 +0,0 @@
+-# Generated by Django 5.1.6 on 2025-04-10 17:45
+-
+-import datetime
+-from django.db import migrations, models
+-
+-
+-class Migration(migrations.Migration):
+-
+-    dependencies = [
+-        ('bmstu_lab', '0004_delete_product_alter_authuser_options_services_price_and_more'),
+-    ]
+-
+-    operations = [
+-        migrations.AddField(
+-            model_name='services',
+-            name='date',
+-            field=models.DateField(default=datetime.date(2025, 4, 10), verbose_name='Дата'),
+-        ),
+-    ]
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"dbb65c11-47b2-48db-a108-028847eda0df\" name=\"Changes\" comment=\"Tamplate 0.3\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/bmstu_lab/static/css/styles.css\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/bmstu_lab/static/css/styles.css\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/bmstu_lab/templates/base.html\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/bmstu_lab/templates/base.html\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"DjangoConsoleOptions\" custom-start-script=\"import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)\">\r\n    <option name=\"myCustomStartScript\" value=\"import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"HTML File\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"Template\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;PsYcHo2601&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/PsYcHo2601/Cafe.git&quot;,\r\n    &quot;accountId&quot;: &quot;54b5f9db-0d45-4e5e-b680-52a052c67088&quot;\r\n  }\r\n}</component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 5\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2tnfZPs92OoYCgwZ2OmEh2DEAA6\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,\r\n    &quot;Django Server.Lab_1.executor&quot;: &quot;Run&quot;,\r\n    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,\r\n    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,\r\n    &quot;database.data.extractors.current.export.id&quot;: &quot;SQL Inserts&quot;,\r\n    &quot;database.data.extractors.current.id&quot;: &quot;SQL Inserts&quot;,\r\n    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;Template&quot;,\r\n    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;D:/Projects/Lab_1/.venv&quot;,\r\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\r\n    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,\r\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\r\n  },\r\n  &quot;keyToStringList&quot;: {\r\n    &quot;DatabaseDriversLRU&quot;: [\r\n      &quot;postgresql&quot;\r\n    ]\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"D:\\Projects\\Lab_1\\bmstu_lab\\\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"RunManager\">\r\n    <configuration name=\"Lab_1\" type=\"Python.DjangoServer\" factoryName=\"Django server\">\r\n      <module name=\"Lab_1\" />\r\n      <option name=\"ENV_FILES\" value=\"\" />\r\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\r\n      <option name=\"PARENT_ENVS\" value=\"true\" />\r\n      <envs>\r\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\r\n        <env name=\"DJANGO_SETTINGS_MODULE\" value=\"Lab_1.settings\" />\r\n      </envs>\r\n      <option name=\"SDK_HOME\" value=\"\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"\" />\r\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\r\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\r\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\r\n      <option name=\"launchJavascriptDebuger\" value=\"false\" />\r\n      <option name=\"port\" value=\"8000\" />\r\n      <option name=\"host\" value=\"localhost\" />\r\n      <option name=\"additionalOptions\" value=\"\" />\r\n      <option name=\"browserUrl\" value=\"\" />\r\n      <option name=\"runTestServer\" value=\"false\" />\r\n      <option name=\"runNoReload\" value=\"false\" />\r\n      <option name=\"useCustomRunCommand\" value=\"false\" />\r\n      <option name=\"customRunCommand\" value=\"\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241\" />\r\n        <option value=\"bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"dbb65c11-47b2-48db-a108-028847eda0df\" name=\"Changes\" comment=\"\" />\r\n      <created>1740992816396</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1740992816396</updated>\r\n      <workItem from=\"1740992872344\" duration=\"8875000\" />\r\n      <workItem from=\"1741685569746\" duration=\"1739000\" />\r\n      <workItem from=\"1741983717992\" duration=\"121000\" />\r\n      <workItem from=\"1741983853438\" duration=\"111000\" />\r\n      <workItem from=\"1741984682191\" duration=\"13024000\" />\r\n      <workItem from=\"1742153923831\" duration=\"2342000\" />\r\n      <workItem from=\"1742221340452\" duration=\"335000\" />\r\n      <workItem from=\"1742221705114\" duration=\"134000\" />\r\n      <workItem from=\"1742221873090\" duration=\"123000\" />\r\n      <workItem from=\"1742222043587\" duration=\"343000\" />\r\n      <workItem from=\"1742222409376\" duration=\"1558000\" />\r\n      <workItem from=\"1742224387717\" duration=\"2366000\" />\r\n      <workItem from=\"1742238365740\" duration=\"7548000\" />\r\n      <workItem from=\"1742298550442\" duration=\"38438000\" />\r\n      <workItem from=\"1744111306961\" duration=\"2977000\" />\r\n      <workItem from=\"1744114341433\" duration=\"2330000\" />\r\n      <workItem from=\"1744143626383\" duration=\"7437000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"Tamplate 0.3\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1742835808142</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1742835808143</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"2\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"Tamplate v0.1\" />\r\n    <MESSAGE value=\"Tamplate 0.3\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Tamplate 0.3\" />\r\n  </component>\r\n  <component name=\"XDebuggerManager\">\r\n    <breakpoint-manager>\r\n      <breakpoints>\r\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\r\n          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>\r\n          <line>66</line>\r\n          <option name=\"timeStamp\" value=\"7\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\r\n          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>\r\n          <line>70</line>\r\n          <option name=\"timeStamp\" value=\"13\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\r\n          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>\r\n          <line>97</line>\r\n          <option name=\"timeStamp\" value=\"14\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\r\n          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>\r\n          <line>98</line>\r\n          <option name=\"timeStamp\" value=\"15\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\r\n          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>\r\n          <line>100</line>\r\n          <option name=\"timeStamp\" value=\"16\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"django-line\">\r\n          <url>file://$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html</url>\r\n          <line>1</line>\r\n          <option name=\"timeStamp\" value=\"4\" />\r\n        </line-breakpoint>\r\n      </breakpoints>\r\n    </breakpoint-manager>\r\n    <watches-manager>\r\n      <configuration name=\"Python.DjangoServer\">\r\n        <watch expression=\"Orders.objects.filter(creator_id=user_id, status=Orders.DRAFT).exists()\" />\r\n      </configuration>\r\n    </watches-manager>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 10d673797dd871459b9256dc30e94253b6a8d425)
++++ b/.idea/workspace.xml	(date 1745175631971)
+@@ -4,13 +4,15 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="dbb65c11-47b2-48db-a108-028847eda0df" name="Changes" comment="Tamplate 0.3">
++    <list default="true" id="dbb65c11-47b2-48db-a108-028847eda0df" name="Changes" comment="Работа с Drf">
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/Changes.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Changes.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_04_2025_22_29__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_04_2025_22_29__Changes_.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/bmstu_lab/static/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/static/css/styles.css" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/base.html" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/basket_detail.html" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/bmstu_lab/templates/coffee_list.html" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/bmstu_lab/migrations/0001_initial.py" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/bmstu_lab/migrations/0002_authuser_product_services_orders_orderservices.py" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/bmstu_lab/migrations/0003_alter_orders_options_orders_unique_draft_per_user_and_more.py" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/bmstu_lab/migrations/0004_delete_product_alter_authuser_options_services_price_and_more.py" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/bmstu_lab/migrations/0005_services_date.py" beforeDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -24,13 +26,14 @@
+     <option name="RECENT_TEMPLATES">
+       <list>
+         <option value="HTML File" />
++        <option value="Python Script" />
+       </list>
+     </option>
+   </component>
+   <component name="Git.Settings">
+     <option name="RECENT_BRANCH_BY_REPOSITORY">
+       <map>
+-        <entry key="$PROJECT_DIR$" value="Template" />
++        <entry key="$PROJECT_DIR$" value="BD" />
+       </map>
+     </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+@@ -158,7 +161,15 @@
+       <option name="project" value="LOCAL" />
+       <updated>1742835808143</updated>
+     </task>
+-    <option name="localTasksCounter" value="2" />
++    <task id="LOCAL-00002" summary="Работа с Drf">
++      <option name="closed" value="true" />
++      <created>1745175151779</created>
++      <option name="number" value="00002" />
++      <option name="presentableId" value="LOCAL-00002" />
++      <option name="project" value="LOCAL" />
++      <updated>1745175151779</updated>
++    </task>
++    <option name="localTasksCounter" value="3" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -178,36 +189,12 @@
+   <component name="VcsManagerConfiguration">
+     <MESSAGE value="Tamplate v0.1" />
+     <MESSAGE value="Tamplate 0.3" />
+-    <option name="LAST_COMMIT_MESSAGE" value="Tamplate 0.3" />
++    <MESSAGE value="Работа с Drf" />
++    <option name="LAST_COMMIT_MESSAGE" value="Работа с Drf" />
+   </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+       <breakpoints>
+-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+-          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+-          <line>66</line>
+-          <option name="timeStamp" value="7" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+-          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+-          <line>70</line>
+-          <option name="timeStamp" value="13" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+-          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+-          <line>97</line>
+-          <option name="timeStamp" value="14" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+-          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+-          <line>98</line>
+-          <option name="timeStamp" value="15" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+-          <url>file://$PROJECT_DIR$/bmstu_lab/views.py</url>
+-          <line>100</line>
+-          <option name="timeStamp" value="16" />
+-        </line-breakpoint>
+         <line-breakpoint enabled="true" type="django-line">
+           <url>file://$PROJECT_DIR$/bmstu_lab/templates/coffee_detail.html</url>
+           <line>1</line>
